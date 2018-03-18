@@ -1,4 +1,4 @@
-#Week 2 Quiz
+# Week 2 Quiz
 
 1. Which of the following commands will create a directory called data in your current working directory?
  - `pwd ../data`
