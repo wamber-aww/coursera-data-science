@@ -4,7 +4,7 @@ This is the second course of the Coursera Data Science Specialization, **R Progr
 
 # Contents
 
-[Week 1 quiz]()  
+[Week 1 quiz](https://wamber-aww.github.io/coursera-data-science/Course2_RProgramming/W1Quiz.html)  
 [Week 2 quiz]()  
 [Week 2 assignment]()  
 [Week 3 quiz]()  
