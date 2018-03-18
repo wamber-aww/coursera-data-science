@@ -1,4 +1,4 @@
-#Week 1 Quiz
+# Week 1 Quiz
 
 1. Which of the following are courses in the Data Science Specialization? Select all that apply
  - **Exploratory Data Analysis**
