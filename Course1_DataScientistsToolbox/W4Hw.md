@@ -9,7 +9,7 @@ The Course Project for this course is pretty straightforward. Now that you’ve 
 2. Install Rstudio
 3. Open Rstudio and take a screenshot
 4. Submit a screenshot of Rstudio open on your screen using one of these formats: png, jpg, gif, pdf  
-![Homework](https://github.com/wamber-aww/coursera-data-science/blob/master/Course1_DataScientistsToolbox/W4RstudioScreenShot.png)
+![Homework](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/W4RstudioScreenShot.png)
 
 ### Github
 1. Set up a Github account (you may use your own name or a pseudonym).
@@ -22,7 +22,7 @@ The Course Project for this course is pretty straightforward. Now that you’ve 
 2. Add the line "## This is a markdown file" (without the quotation marks) to the document (without the quotation marks)
 3. Push the document to the datasciencecoursera repo you created on Github
 4. Submit the link to the HelloWorld.md file on your Github repo.  
-[HelloWorld.md](https://github.com/wamber-aww/coursera-data-science/blob/master/Course1_DataScientistsToolbox/HelloWorld.md)
+[HelloWorld.md](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/HelloWorld.md)
 
 ### Collaboration
 1. Fork the data sharing repository here: <https://github.com/jtleek/datasharing>
