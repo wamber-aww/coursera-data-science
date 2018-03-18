@@ -1,4 +1,4 @@
-#Week 3 Quiz
+# Week 3 Quiz
 
 1. We take a random sample of individuals in a population and identify whether they smoke and if they have cancer. We observe that there is a strong relationship between whether a person in the sample smoked or not and whether they have lung cancer. We claim that the smoking is related to lung cancer in the larger population. We explain we think that the reason for this relationship is because cigarette smoke contains known carcinogens such as arsenic and benzene, which makes cells in the lungs become cancerous.
  - The is an example of a causal data analysis
