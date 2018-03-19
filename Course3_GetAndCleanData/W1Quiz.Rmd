@@ -1,0 +1,67 @@
+---
+title: "Week 1 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv) and d the data into R. The code book, describing the variable names is [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf). How many properties are worth $1,000,000 or more?
+
+```{r}
+download.file(url = 'https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv',
+              destfile = paste0(getwd(), '/quiz1_data1.csv'),
+              method = 'curl', quiet = T)
+raw <- read.csv('quiz1_data1.csv')
+#VAL: property value
+#24: 1000000+
+table(raw$VAL == 24)
+```
+
+2. Use the data you loaded from Question 1. Consider the variable FES in the code book. Which of the "tidy data" principles does this variable violate?
+ - Each tidy data table contains information about only one type of observation
+ - Tidy data has one observation per row.
+ - **Tidy data has one variable per column.**
+ - Each variable in a tidy data set has been transformed to be interpretable.
+
+3. Download the Excel spreadsheet on Natural Gas Aquisition Program [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx). Read rows 18-23 and columns 7-15 into R and assign the result to a variable called `dat`. What is the value of `sum(dat$Zip*dat$Ext,na.rm=T)`
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx', 
+              destfile = paste0(getwd(), '/quiz1_data2.xlsx'), 
+              method = 'curl', quiet = T)
+
+library(openxlsx)
+dat <- read.xlsx('quiz1_data2.csv', sheet = 1,rows = 18:23, cols = 7:15)
+sum(dat$Zip*dat$Ext,na.rm=T)
+```
+
+4. Read the XML data on Baltimore restaurants from [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml). How many restaurants have zipcode 21231?
+```{r}
+library(XML)
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml', 
+              destfile = paste0(getwd(), '/quiz1_data3.xml'), 
+              method = 'curl', quiet = T)
+  #can't use xmlTreeParse directly b/c this is from 'https' (not supported by the package anymore!)
+Q4data <- xmlTreeParse('quiz1_data3.xml', useInternalNodes = T)
+Q4rootNode <- xmlRoot(Q4data)
+  #wrapper element for the entire document
+  #to gain access to the document
+length(Q4rootNode[xpathSApply(Q4rootNode, '//zipcode', xmlValue) == 21231])
+  #xpathSApply --> extract the values that have the tags 'zipcode'
+  #find how many zipcodes are 21231
+```
+
+5. The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv). Using the `fread()` command load the data into an R object `DT`.
+
+The following are ways to calculate the average value of the variable `pwgtp15` broken down by sex. Using the data.table package, which will deliver the fastest user time?
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv', 
+              destfile = paste0(getwd(), '/quiz1_data4.csv'), 
+              method = 'curl', quiet = T)
+library(data.table)
+DT <- fread(input = 'quiz1_data4.csv', sep = ',')
+DT[,mean(pwgtp15),by=SEX]
+  #only this uses DT
+```
+

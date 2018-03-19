@@ -1,0 +1,93 @@
+---
+title: "Week 2 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Register an application with the Github API [here](https://github.com/settings/applications). Access the API to get information on your instructors repositories  
+  (hint: this is the url you want <https://api.github.com/users/jtleek/repos>).  
+  Use this data to find the time that the datasharing repo was created. What time was it created?  
+  (Hint: [This tutorial](https://github.com/hadley/httr/blob/master/demo/oauth2-github.r) may be useful. You may also need to run the code in the base R package and not R studio.)
+
+```{r}
+#create a new app with the Github development team - to get the client Id and token
+#https://github.com/settings/applications/670785
+#Fill out application name; url - github homepage
+clientId <- '1c038dd7df6a509afe89'
+clientTkn <- 'bd222cfcf1b956faa4cb24b0ab3b1589d84294f6'
+library(httr)
+myapp <- oauth_app('github', key = clientId, secret = clientTkn)
+  #start application authentication process
+sig <- sign_oauth1.0(myapp, token = clientId, token_secret = clientTkn)
+  #create a sign in credential
+Q1json <- GET('https://api.github.com/users/jtleek/repos', sig)
+  #get the page (json data) that corresponds to the url with your sign in credentials
+json1 <- content(Q1json) 
+  #extract the json file with the content
+  #this is usually hard to read
+library(jsonlite)
+Q1data <- jsonlite::fromJSON(toJSON(json1)) 
+  #creates a dataframe from the json data - this is easier to read
+colnames(Q1data)
+Q1data[1:2, 1:3]
+  #read the first couple of row/columns of the dataframe
+Q1data[Q1data$full_name == 'jtleek/datasharing', ]$created_at
+```
+
+ - 2012-06-20T18:39:06Z
+ - 2014-03-05T16:11:46Z
+ - 2014-02-06T16:13:11Z
+ - **2013-11-07T13:25:07Z**
+
+2. The sqldf package allows for execution of SQL commands on R data frames. We will use the sqldf package to practice the queries we might send with the dbSendQuery command in RMySQL. Download the [American Community Survey data](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv) and load it into an R object called `acs`. Which of the following commands will select only the data for the probability weights pwgtp1 with ages less than 50?
+```{r, message=FALSE, warning=FALSE}
+download.file(url = 'https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv',
+              dest = paste0(getwd(), '/quiz2_data1.csv'),
+              method = 'curl', quiet = T)
+acs <- read.csv('quiz2_data1.csv')
+library(sqldf)
+head(sqldf('select pwgtp1 from acs where AGEP < 50'))
+```
+ - sqldf("select * from acs where AGEP < 50 and pwgtp1")
+ - sqldf("select pwgtp1 from acs")
+ - **sqldf("select pwgtp1 from acs where AGEP < 50")**
+ - sqldf("select * from acs")
+
+3. Using the same data frame you created in the previous problem, what is the equivalent function to unique(acs$AGEP)
+```{r}
+head(sqldf("select distinct AGEP from acs"))
+```
+ - **sqldf("select distinct AGEP from acs")**
+ - sqldf("select distinct pwgtp1 from acs")
+ - sqldf("select unique AGEP from acs")
+ - sqldf("select unique AGEP from acs")
+
+
+4. How many characters are in the 10th, 20th, 30th and 100th lines of HTML from [this page](http://biostat.jhsph.edu/~jleek/contact.html). (Hint: the `nchar()` function in R may be helpful)
+```{r}
+Q4data <- readLines('http://biostat.jhsph.edu/~jleek/contact.html')
+c(nchar(Q4data[10]), nchar(Q4data[20]), nchar(Q4data[30]), nchar(Q4data[100]))
+```
+ - 43 99 7 25
+ - **45 31 7 25**
+ - 45 31 7 31
+ - 45 92 7 2
+ - 45 0 2 2
+ - 45 31 2 25
+ - 43 99 8 6
+
+5. Read [this data](https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for) set into R and report the sum of the numbers in the fourth of the nine columns. (Hint: this is a fixed width file format)
+```{r}
+Q5data <- read.fwf(file=url("https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for"), 
+                   widths = c(10, 9, 9, 4, 5, 8, 5, 8, 5), skip = 4)
+sum(Q5data$V4)
+```
+ - 101.83
+ - 222243.1
+ - 35824.9
+ - 28893.3
+ - **32426.7**
+ - 36.5
