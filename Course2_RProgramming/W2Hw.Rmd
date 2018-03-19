@@ -1,0 +1,174 @@
+---
+title: "Week 2 Assignment: Air Pollution"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+For this first programming assignment you will write three functions that are meant to interact with dataset that accompanies this assignment. The dataset is contained in a zip file specdata.zip that you can download from the Coursera web site. Although this is a programming assignment, you will be assessed using a separate quiz.
+
+## Data
+The zip file containing the data can be downloaded [here](https://d396qusza40orc.cloudfront.net/rprog%2Fdata%2Fspecdata.zip)
+
+The zip file contains 332 comma-separated-value (CSV) files containing pollution monitoring data for fine particulate matter (PM) air pollution at 332 locations in the United States. Each file contains data from a single monitor and the ID number for each monitor is contained in the file name. For example, data for monitor 200 is contained in the file "200.csv". Each file contains three variables:
+
+ - Date: the date of the observation in YYYY-MM-DD format (year-month-day)
+ - sulfate: the level of sulfate PM in the air on that date (measured in micrograms per cubic meter)
+ - nitrate: the level of nitrate PM in the air on that date (measured in micrograms per cubic meter)
+
+For this programming assignment you will need to unzip this file and create the directory 'specdata'. Once you have unzipped the zip file, do not make any modifications to the files in the 'specdata' directory. In each file you'll notice that there are many days where either sulfate or nitrate (or both) are missing (coded as NA). This is common with air pollution monitoring data in the United States.
+
+## Part 1
+Write a function named 'pollutantmean' that calculates the mean of a pollutant (sulfate or nitrate) across a specified list of monitors. The function 'pollutantmean' takes three arguments: 'directory', 'pollutant', and 'id'. Given a vector monitor ID numbers, 'pollutantmean' reads that monitors' particulate matter data from the directory specified in the 'directory' argument and returns the mean of the pollutant across all of the monitors, ignoring any missing values coded as NA.  
+You can see some example output from this function [here](https://d18ky98rnyall9.cloudfront.net/_3b0da118473bfa0845efddcbe29cc336_pollutantmean-demo.html?Expires=1521504000&Signature=UAU5qkweNdGzsvDpXSHUQ7R-i4MC3oQKQ5RH4U9LhnmmxWI2BEZCLMwn-m6xY1BcweVSEojnDxOc2~WhD~t9Xp3GfiYXyIzdntZTLcf5gL4TG6Uv4MlHr0bYKi9LSTKDXVdMumsUvcKJ-DJl~1gj7FKyxuSLbaed6jkvjrAiHqM_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A). The function that you write should be able to match this output.
+```{r}
+pollutantmean <- function(directory, pollutant, id = 1:332) {
+
+  ##calculates the mean of a pollutant (sulfate or nitrate) 
+  ##across a specified list of monitors
+  
+  ##'directory' is a character vector of length 1 indicating 
+  ##the location of the CSV files
+  
+  ##'id' is an integer vector indicating the monitor ID numbers to be used
+  
+  ##'pollutant' is a character vector of length 1 indicating
+  ##the name of the pollutant for which we will calculate the
+  ##mean; either 'sulfate' or 'nitrate'.
+
+  measurements <- c() #make an empty vector
+
+  for (i in id) {
+    filePath <- paste(directory, '/', formatC(i, width = 3, flag = "0"), '.csv', sep = "")
+      #make id number all the same length (3 digits)
+    fileData <- read.csv(filePath) #read the file
+    measurements <- append(measurements, fileData[, pollutant])
+  }
+  
+  return(mean(measurements, na.rm = T))
+}
+```
+
+
+## Part 2
+Write a function that reads a directory full of files and reports the number of completely observed cases in each data file. The function should return a data frame where the first column is the name of the file and the second column is the number of complete cases.  
+You can see some example output from this function [here](https://d18ky98rnyall9.cloudfront.net/_3b0da118473bfa0845efddcbe29cc336_complete-demo.html?Expires=1521504000&Signature=RZ1TY9esDKNPWA5S9uKPTnFALSiqFrQuGEP6QzQrCCSOjY8cUkOr52m-U6K5Z7u1V5zvn2Jiv-ncfMiZ2u4wmgzIJeEpdTnznmPGwrWpgIXoQIrKMcSNb26IYk5VQl3NuchDn731UpN4aIWKcm3ktaF~P1numIqgGPv-RXHCs8g_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A). The function that you write should be able to match this output. 
+```{r}
+complete <- function(directory, id = 1:332) {
+  ##reads a directory full of files and reports the number of 
+  ##completely observed cases in each data file
+  monitorId <- c()
+  completeCases <- c()
+  for (i in id) {
+    monitorId <- append(monitorId, i)
+    filePath <- paste(directory, '/', formatC(i, width = 3, flag = "0"), '.csv', sep = "")
+    fileData <- read.csv(filePath)
+    completeCount <- sum(complete.cases(fileData))
+    completeCases <- append(completeCases, completeCount)
+  }
+  return(as.data.frame(cbind(monitorId, completeCases)))
+}
+```
+
+
+## Part 3
+Write a function that takes a directory of data files and a threshold for complete cases and calculates the correlation between sulfate and nitrate for monitor locations where the number of completely observed cases (on all variables) is greater than the threshold. The function should return a vector of correlations for the monitors that meet the threshold requirement. If no monitors meet the threshold requirement, then the function should return a numeric vector of length 0.  
+For this function you will need to use the 'cor' function in R which calculates the correlation between two vectors. Please read the help page for this function via '?cor' and make sure that you know how to use it.  
+You can see some example output from this function [here](https://d18ky98rnyall9.cloudfront.net/_e92e575b8e62dcb1e3a086d2ff0d5a1e_corr-demo.html?Expires=1521504000&Signature=JywU5PCWR8hVxPxAjAm-I0jscLptUbMSrr1XXr6ixNJ1cEz28T77PIKeXIIpUTBgM2C8wdBVItc7POi3Hz1Px1iR0lJsjF04vfwA0BnzYXxV3obnDBYmU4ErGnjdhLMHrGR9j5hXfaLEb3WQr0S3CxY~DEfRq-tU~aTwZeYAQoE_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A). The function that you write should be able to approximately match this output. **Note that because of how R rounds and presents floating point numbers, the output you generate may differ slightly from the example output**. 
+```{r}
+corr <- function(directory, threshold = 0) {
+  
+  allFiles <- list.files(directory) #list all files in the directory
+  correlation <- c() #create an empty vector to store the correlation that passes the threshold
+  
+  for (i in allFiles) {
+    filePath = paste(directory, '/', i, sep = "")
+    fileData = read.csv(filePath)
+    
+    if (length(which(complete.cases(fileData))) > threshold) {
+      addCorr <- cor(x = fileData[, 'sulfate'], y = fileData[, 'nitrate'], use = 'complete.obs')
+      correlation <- append(correlation, addCorr)
+    }
+  }
+  return(correlation) #return this vector
+}  
+```
+
+## Quiz
+```{r}
+download.file(url = 'https://d396qusza40orc.cloudfront.net/rprog%2Fdata%2Fspecdata.zip',
+              destfile = paste0(getwd(), '/specdata.zip'),
+              method = 'curl', quiet = T)
+unzip(zipfile = 'specdata.zip')
+```
+
+1. What value is returned by the following call to pollutantmean()? You should round your output to 3 digits.
+```{r}
+round(pollutantmean("specdata", "sulfate", 1:10), digits = 3)
+```
+
+2. What value is returned by the following call to pollutantmean()? You should round your output to 3 digits.
+```{r}
+round(pollutantmean("specdata", "nitrate", 70:72), 3)
+```
+
+3. What value is returned by the following call to pollutantmean()? You should round your output to 3 digits.
+```{r}
+round(pollutantmean("specdata", "sulfate", 34), 3)
+```
+
+4. What value is returned by the following call to pollutantmean()? You should round your output to 3 digits.
+```{r}
+round(pollutantmean("specdata", "nitrate"), 3)
+```
+
+5. What value is printed at end of the following code?
+```{r}
+cc <- complete("specdata", c(6, 10, 20, 34, 100, 200, 310))
+print(cc$completeCases)
+```
+
+6. What value is printed at end of the following code?
+```{r}
+cc <- complete("specdata", 54)
+print(cc$completeCases)
+```
+
+7. What value is printed at end of the following code?
+```{r}
+set.seed(42)
+cc <- complete("specdata", 332:1)
+use <- sample(332, 10)
+print(cc[use, 'completeCases'])
+```
+
+8. What value is printed at end of the following code?
+```{r}
+cr <- corr("specdata")
+cr <- sort(cr)
+set.seed(868)                
+out <- round(cr[sample(length(cr), 5)], 4)
+print(out)
+```
+
+9. What value is printed at end of the following code?
+```{r}
+cr <- corr("specdata", 129)                
+cr <- sort(cr)                
+n <- length(cr)                
+set.seed(197)                
+out <- c(n, round(cr[sample(n, 5)], 4))
+print(out)
+```
+
+10. What value is printed at end of the following code?
+```{r}
+cr <- corr("specdata", 2000)                
+n <- length(cr)                
+cr <- corr("specdata", 1000)                
+cr <- sort(cr)
+print(c(n, round(cr, 4)))
+```
