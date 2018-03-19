@@ -19,4 +19,4 @@ The assignments link to the html pages containing the project description, the f
 - [Week 4 assignment](https://wamber-aww.github.io/coursera-data-science/Course2_RProgramming/W4Hw.html) 
     - [function: best.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course2_RProgramming/best.R)
     - [function: rankhospital.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course2_RProgramming/rankhospital.R)
-    - [function: rankall.R] (https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course2_RProgramming/rankall.R)
+    - [function: rankall.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course2_RProgramming/rankall.R)
