@@ -4,9 +4,15 @@ This is the third course of the Coursera Data Science Specialization, **Getting 
 
 
 # Contents
+The assignment links to the html page with the compiled project description, functions, and the results. Required files are also separately saved and links provided as below.
 
-- [Week 1 quiz]()  
-- [Week 2 quiz]()  
-- [Week 3 quiz]()  
-- [Week 4 quiz]()
-- [Week 4 assignment]()
+- [Week 1 quiz](https://wamber-aww.github.io/coursera-data-science/Course3_GetAndCleanData/W1Quiz.html)  
+- [Week 2 quiz](https://wamber-aww.github.io/coursera-data-science/Course3_GetAndCleanData/W2Quiz.html)  
+- [Week 3 quiz](https://wamber-aww.github.io/coursera-data-science/Course3_GetAndCleanData/W3Quiz.html)  
+- [Week 4 quiz](https://wamber-aww.github.io/coursera-data-science/Course3_GetAndCleanData/W4Quiz.html)
+- [Week 4 assignment](https://wamber-aww.github.io/coursera-data-science/Course3_GetAndCleanData/W4Hw.html)
+	- [About.md](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course3_GetAndCleanData/about.md)
+	- [Codebook.md](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course3_GetAndCleanData/codeBook.md)
+	- [run_analysis.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course3_GetAndCleanData/run_analysis.R)
+	- [tidydata.txt](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course3_GetAndCleanData/tidyData.txt)
+	- [tidydatamean.txt](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course3_GetAndCleanData/tidyDataMean.txt)
