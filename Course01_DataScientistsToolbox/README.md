@@ -4,7 +4,7 @@ This is the first course of the Coursera Data Science Specialization, **The Data
 
 # Contents
 
-- [Week 1 quiz](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/W1Quiz.md)  
-- [Week 2 quiz](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/W2Quiz.md)  
-- [Week 3 quiz](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/W3Quiz.md)  
-- [Week 4 assignment](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/W4Hw.md)
+- [Week 1 quiz](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W1Quiz.md)  
+- [Week 2 quiz](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W2Quiz.md)  
+- [Week 3 quiz](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W3Quiz.md)  
+- [Week 4 assignment](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W4Hw.md)
