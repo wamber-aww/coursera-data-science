@@ -9,7 +9,7 @@ The Course Project for this course is pretty straightforward. Now that you’ve 
 2. Install Rstudio
 3. Open Rstudio and take a screenshot
 4. Submit a screenshot of Rstudio open on your screen using one of these formats: png, jpg, gif, pdf  
-![Homework](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course1_DataScientistsToolbox/W4RstudioScreenShot.png)
+![Homework](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W4RstudioScreenShot.png)
 
 ### Github
 1. Set up a Github account (you may use your own name or a pseudonym).
