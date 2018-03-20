@@ -1,0 +1,120 @@
+---
+title: "Week 4 Assignment: Cleaning Data from Wearable Devices"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+One of the most exciting areas in all of data science right now is wearable computing. Companies like Fitbit, Nike, and Jawbone Up are racing to develop the most advanced algorithms to attract new users. The data linked to from the course website represent data collected from the accelerometers from the Samsung Galaxy S smartphone. A full description is available at [this site](http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones) where the data was obtained
+
+## Data
+The data for the project can be downloaded from [here](https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip)
+
+You should create one R script called run_analysis.R that does the following.
+  1. Merges the training and the test sets to create one data set.
+  2. Extracts only the measurements on the mean and standard deviation for each measurement.
+  3. Uses descriptive activity names to name the activities in the data set
+  4. Appropriately labels the data set with descriptive variable names.
+  5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+
+## Review criteria
+  1. The submitted data set is tidy.
+  2. The Github repo contains the required scripts.
+  3. GitHub contains a code book that modifies and updates the available codebooks with the data to indicate all the variables and summaries calculated, along with units, and any other relevant information.
+  4. The README that explains the analysis files is clear and understandable.
+  5. The work submitted for this project is the work of the student who submitted it.
+
+## Part 1: Merge the training and the test sets to create one data set
+1. Download file
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip',
+              destfile = './hw4_data.zip', method = 'curl', quiet = T)
+unzip(zipfile = 'hw4_data.zip')
+```
+
+2. Prepare label files
+```{r}
+# Read in label files
+actLab <- read.table('./UCI HAR Dataset/activity_labels.txt', 
+                     col.names = c('activityLabels', 'activityName'), quote = "")
+# Links the class labels with their activity name
+features <- read.table('./UCI HAR Dataset/features.txt', 
+                       col.names = c('featureLabels', 'featureName'), quote = "")
+```
+
+3. Prepare test data
+```{r}
+# Read in test data
+subTest <- read.table('./UCI HAR Dataset/test/subject_test.txt', col.names = c('subjectId'))
+  #Each row identifies the subject who performed the activity for each window sample. 
+  #Its range is from 1 to 30.
+XTest <- read.table('./UCI HAR Dataset/test/X_test.txt')
+  #Mesurements for the test data (features)
+yTest <- read.table('./UCI HAR Dataset/test/y_test.txt')
+  #Result for the test data (outcomes)
+
+# Combine all test data and give column names
+colnames(XTest) <- features$featureName
+colnames(yTest) <- c('activityLabels')
+testData <- cbind(subTest, XTest, yTest)
+
+```
+
+4. Prepare training data
+```{r}
+# Read in training data
+subTrain <- read.table('./UCI HAR Dataset/train/subject_train.txt', col.names = c('subjectId'))
+XTrain <- read.table('./UCI HAR Dataset/train/X_train.txt')
+yTrain <- read.table('./UCI HAR Dataset/train/y_train.txt')
+
+# Combine all training data and give column names
+colnames(XTrain) <- features$featureName
+colnames(yTrain) <- c('activityLabels')
+trainData <- cbind(subTrain, XTrain, yTrain)
+```
+
+5. Combine test and training data
+```{r}
+allData <- rbind(trainData, testData)
+```
+
+## Part 2: Extract the mean and standard deviation measurements
+```{r}
+meanSdData <- allData[, c(1, grep(pattern = 'mean\\(\\)|std\\(\\)', x = names(allData)), 563)]
+  #select only variables with mean and std - excludes meanFreq() and angle()
+  #(refer to features_info.txt for more information)
+  #also include the subject ID (col = 1) and activity code (col = 563)
+```
+
+## Part 3: Use descriptive activity names for the activities in the data set
+```{r}
+meanSdData$subjectId <- as.factor(meanSdData$subjectId)
+meanSdData$activity <- factor(meanSdData$activityLabels,
+                              levels = actLab$activityLabels,
+                              labels = actLab$activityName)
+  #make a new column that considers the activityLabels column a factor of 6 levels, 
+  #with the label the same as the activity name
+meanSdData <- meanSdData[, -68]
+  #remove the activity labels column to tidy up the data
+names(meanSdData)
+  #double check that the activityLabels column is gone
+```
+
+## Part 4: Label the data set with descriptive variable names
+```{r}
+colnames(meanSdData) <- gsub(pattern = '\\(\\)', replacement = "", x = names(meanSdData))
+  #remove the () for the mean and std in the measurements
+meanSdData <- meanSdData[, c(1, 68, 2:67)]
+  #move the activity column to the second column
+write.table(meanSdData, file = 'tidyData.txt', row.names = F, quote = F, sep = "\t")
+```
+
+## Part 5: Creates a second tidy data set with the average of each variable for each activity and each subject
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+meanSdDataByIdAct <- group_by(meanSdData, subjectId, activity) %>% summarise_all(funs(mean))
+write.table(meanSdDataByIdAct, file = 'tidyDataMean.txt', row.names = F, quote = F, sep = "\t")
+```

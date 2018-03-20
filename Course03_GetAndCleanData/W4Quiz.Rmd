@@ -1,0 +1,86 @@
+---
+title: "Week 4 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv) and load the data into R. The code book, describing the variable names is [here](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf).  
+  Apply `strsplit()` to split all the names of the data frame on the characters "wgtp". What is the value of the 123 element of the resulting list?
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv', 
+              destfile = './quiz4_data1.csv', 
+              method = 'curl', quiet = T)
+Q1data <- read.csv('quiz4_data1.csv')
+strsplit(names(Q1data), split = 'wgtp')[123]
+```
+  - **"" "15"**
+  - "wgt" "15"
+  - "wgtp"
+  - "wgtp" "15"
+
+2. Load the Gross Domestic Product data for the 190 ranked countries in [this data set](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv). Remove the commas from the GDP numbers in millions of dollars and average them. What is the average?
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv',
+              destfile = './quiz4_data2.csv', method = 'curl', quiet = T)
+Q2data <- read.csv('quiz4_data2.csv', skip = 4, nrows = 190)
+mean(as.numeric(gsub(pattern = ',', replacement = '', x=Q2data$X.4)))
+```
+  - 379596.5
+  - **377652.4**
+  - 387854.4
+  - 381668.9
+  
+3. In the data set from Question 2 what is a regular expression that would allow you to count the number of countries whose name begins with "United"? Assume that the variable with the country names in it is named countryNames. How many countries begin with United?
+```{r}
+Q3data <- Q2data[c(-99, -186), c(1, 2, 4, 5)]
+colnames(Q3data) <- c('Code', 'Rank', 'countryNames', 'GDP')
+grep(pattern = '^United', x = Q3data$countryNames)
+```
+  - grep("United$",countryNames), 3
+  - grep("*United",countryNames), 2
+  - **grep("^United",countryNames), 3**
+  - grep("^United",countryNames), 4
+
+4. Load the Gross Domestic Product data for the 190 ranked countries in [this data set](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv)  
+  Load the educational data from [this data set](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv)
+  Match the data based on the country shortcode. Of the countries for which the end of the fiscal year is available, how many end in June?
+```{r}
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FGDP.csv',
+              destfile = './quiz4_data3_gdp.csv', method = 'curl', quiet = T)
+download.file('https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FEDSTATS_Country.csv',
+              destfile = './quiz4_data3_edu', method = 'curl', quiet = T)
+Q4gdpData <- read.csv('quiz4_data3_gdp.csv', skip = 4, nrows = 190)
+Q4gdpData <- Q4gdpData[, c(1, 2, 4, 5)]
+colnames(Q4gdpData) <- c('Code', 'Rank', 'countryNames', 'GDP')
+Q4eduData <- read.csv('quiz4_data3_edu')
+Q4eduData <- Q4eduData[, c(1, 10)]
+colnames(Q4eduData) <- c('Code', 'Notes')
+Q4mergeData <- merge(Q4gdpData, Q4eduData, by = 'Code')
+length(grep('Fiscal year end: June', Q4mergeData$Notes))
+```
+  - 15
+  - **13**
+  - 16
+  - 7
+
+5. You can use the [quantmod](http://www.quantmod.com/) package to get historical stock prices for publicly traded companies on the NASDAQ and NYSE. Use the following code to download data on Amazon's stock price and get the times the data was sampled. How many values were collected in 2012? How many values were collected on Mondays in 2012?
+```{r, message=FALSE, warning=FALSE}
+library(quantmod)
+amzn = getSymbols("AMZN",auto.assign=FALSE)
+sampleTimes = index(amzn)
+```
+```{r, message=FALSE, warning=FALSE}
+table(grepl('2012', strsplit(as.character(sampleTimes), split = '-')))
+Q5data <- as.data.frame(sampleTimes)
+library(data.table)
+length(Q5data[(year(Q5data$sampleTimes) == 2012) & (weekdays(Q5data$sampleTimes) == 'Monday'), ])
+```
+
+  - 252, 50
+  - **250, 47**
+  - 251, 47
+  - 252, 47
+
