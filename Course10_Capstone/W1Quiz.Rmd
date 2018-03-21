@@ -1,0 +1,171 @@
+---
+title: "Week 1 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. The `en_US.blogs.txt` file is how many megabytes?
+```{r}
+file <- 'final/en_US/en_US.blogs.txt'
+con <- file(file, open = 'r')
+fileSizeCom <- paste('ls -lh ', file, " | awk '{print $5}'", sep = "")
+Q1 <- system(command = fileSizeCom, intern = T)
+Q1
+close(con)
+```
+  - 150
+  - **200**
+  - 250
+  - 100
+
+2.The `en_US.twitter.txt` has how many lines of text?
+```{r}
+file <- 'final/en_US/en_US.twitter.txt'
+con <- file(file, open = 'r')
+countLineCom <- paste("wc -l ", file, " | awk '{print $1}'", sep = "")
+Q2 <- system(command = countLineCom, intern = T)
+Q2
+close(con)
+```
+  - Around 1 million
+  - **Over 2 million**
+  - Around 2 hundred thousand
+  - Around 5 hundred thousand
+
+3. What is the length of the longest line seen in any of the three en_US data sets?
+```{r}
+maxLength <- function(file) {
+  
+  #this function takes in a file and return the longest length
+  
+  con <- file(file, open = 'r')
+  countLineCom <- paste("wc -l ", file, " | awk '{print $1}'",sep = "")
+    #count total lines
+  n <- system(command = countLineCom, intern = T)
+  maxLen <- 0
+    #store max length
+  
+  for (i in 1:n) {
+    line <- readLines(con, n = 1, skipNul = T, warn = F)
+    if (nchar(line) > maxLen) {
+      maxLen <- nchar(line)
+    }
+  }
+  
+  close(con)
+  return(maxLen)
+}
+```
+
+  Count longest lines for the news and blogs data set
+```{r}
+file <- 'final/en_US/en_US.blogs.txt'
+blogMax <- maxLength(file)
+
+file <- 'final/en_US/en_US.news.txt'
+newsMax <- maxLength(file)
+
+data.frame('type' = c('blog', 'news'), 'max' = c(blogMax, newsMax))
+```
+  - Over 11 thousand in the news data set
+  - Over 11 thousand in the blogs data set
+  - Over 40 thousand in the news data set
+  - **Over 40 touusand in the blogs data set**
+
+4. In the en_US twitter data set, if you divide the number of lines where the word "love" (all
+lowercase) occurs by the number of lines the word "hate" (all lowercase) occurs, about
+what do you get?
+```{r}
+wordRatio <- function(file, word_num, word_denum) {
+  
+  #this function takes in a file and calculates the ratio of line containing two different words
+  
+  con <- file(file, open = 'r')
+  countLineCom <- paste("wc -l ", file, " | awk '{print $1}'", sep = "")
+  #count total lines
+  n <- system(command = countLineCom, intern = T)
+  word_num_count <- 0
+  word_denum_count <- 0
+  
+  for (i in 1:n) {
+    line <- readLines(con, n = 1, skipNul = T, warn = F)
+    word_num_count <- word_num_count + 
+      length(grep(word_num, unlist(strsplit(x = line, split = ' '))))
+    word_denum_count <- word_denum_count + 
+      length(grep(word_denum, unlist(strsplit(x = line, split = ' '))))
+  }
+  
+  close(con)
+  return(word_num_count/word_denum_count)
+}
+```
+
+  Calculate the ratio of lines with love and hate
+```{r}
+file <- 'final/en_US/en_US.twitter.txt'
+word_num <- 'love'
+word_denum <- 'hate'
+wordRatio(file, word_num, word_denum)
+```
+  - 2
+  - **4**
+  - 0.5
+  0.25
+  
+5. The one tweet in the en_US twitter data set that matches the word "biostats" says what?
+```{r}
+file <- 'final/en_US/en_US.twitter.txt'
+con <- file(file, 'r')
+countLineCom <- paste("wc -l ", file, " | awk '{print $1}'", sep = "")
+n <- system(command = countLineCom, intern = T)
+for (i in 1:n) {
+  line <- readLines(con, n = 1, skipNul = T, warn = F)
+  if ('biostats' %in% unlist(strsplit(x = line, split = ' '))) {
+    print(line)
+    break
+  }
+}
+close(con)
+```
+  - **They haven't studied for their biostats exam**
+  - They need biostats help on their project
+  - It's a tweet about Jeff Leek from one of his students in class
+  - They just enrolled in a biostat program
+
+6. How many tweets have the exact characters "A computer once beat me at chess, but it
+was no match for me at kickboxing". (I.e. the line matches those characters exactly.)
+```{r}
+twtCount <- function(file, twt) {
+  
+  #this function takes in a string and count the number of time that string has appeard in a file
+  
+  con <- file(file, open = 'r')
+  countLineCom <- paste("wc -l ", file, " | awk '{print $1}'", sep = "")
+  n <- system(command = countLineCom, intern = T)
+  twt_count <- 0
+  
+  for (i in 1:n) {
+    line <- readLines(con, n = 1, skipNul = T, warn = F)
+    if (grepl(pattern = twt, x = line)) {
+      twt_count <- twt_count + 1
+    }
+  }
+  close(con)
+  return(twt_count)
+}
+```
+
+  Count the fequencies of the tweet
+```{r}
+file <- 'final/en_US/en_US.twitter.txt'
+query <- 'A computer once beat me at chess, but it was no match for me at kickboxing'
+twtCount(file, query)
+```
+
+  - 2
+  - **3**
+  - 0
+  - 1

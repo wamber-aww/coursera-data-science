@@ -1,0 +1,144 @@
+---
+title: 'Task 1: Getting and Cleaning the Data'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+The goal of this task is to get familiar with the databases and do the necessary cleaning. After this exercise, you should understand what real data looks like and how much effort you need to put into cleaning the data. When you commence on developing a new language, the first thing is to understand the language and its peculiarities with respect to your target. You can learn to read, speak and write the language. Alternatively, you can study data and learn from existing information about the language through literature and the internet. At the very least, you need to understand how the language is written: writing script, existing input methods, some phonetic knowledge, etc.
+
+Note that the data contain words of offensive and profane meaning. They are left there intentionally to highlight the fact that the developer has to work on them.
+
+## Tasks to accomplish
+1. Tokenization - identifying appropriate tokens such as words, punctuation, and numbers. Writing a function that takes a file as input and returns a tokenized version of it.
+2. Profanity filtering - removing profanity and other words you do not want to predict.
+
+## Tips, tricks, and hints
+1. **Loading the data in**. This dataset is fairly large. We emphasize that you don't necessarily need to load the entire dataset in to build your algorithms (see point 2 below). At least initially, you might want to use a smaller subset of the data. Reading in chunks or lines using R's readLines or scan functions can be useful. You can also loop over each line of text by embedding readLines within a for/while loop, but this may be slower than reading in large chunks at a time. Reading pieces of the file at a time will require the use of a file connection in R. For example, the following code could be used to read the first few lines of the English Twitter dataset:
+  `con <- file("en_US.twitter.txt", "r")`  
+  `readLines(con, 1)` ## Read the first line of text  
+  `readLines(con, 1)` ## Read the next line of text  
+  `readLines(con, 5)` ## Read in the next 5 lines of text  
+  `close(con)` ## It's important to close the connection when you are done  
+  See the ?connections help page for more information.
+  
+2. **Sampling**. To reiterate, to build models you don't need to load in and use all of the data. Often relatively few randomly selected rows or chunks need to be included to get an accurate approximation to results that would be obtained using all the data. Remember your inference class and how a representative sample can be used to infer facts about a population. You might want to create a separate sub-sample dataset by reading in a random subset of the original data and writing it out to a separate file. That way, you can store the sample and not have to recreate it every time. You can use the rbinom function to "flip a biased coin" to determine whether you sample a line of text or not.
+
+## Tokenization
+Based on the [Kaggle NLP tutorial](http://blog.kaggle.com/2017/08/25/data-science-101-getting-started-in-nlp-tokenization-tutorial/)
+
+1. Subsample the first 1000 lines from the twitter file as a test file
+```{r}
+# download file if it doesn't exist
+if(!file.exists('Coursera-SwiftKey.zip')){
+  download.file('https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip',
+                destfile = './Coursera-SwiftKey.zip', method = 'curl', quiet = T)
+  unzip('./Coursera-SwiftKey.zip')
+}
+
+file <- 'final/en_US/en_US.twitter.txt'
+con <- file(file, open = 'r')
+testFile <- readLines(con, 1000)
+close(con)
+```
+
+2. Load the required libraries
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidytext)
+```
+
+3. Make twitter test file into a tibble
+```{r}
+testDf <- as_data_frame(testFile)
+head(testDf)
+```
+
+4. Use the tidytext package to tidy up the tibble: remove punctuations and make everything into lowercase
+```{r}
+testTokens <- testDf %>% unnest_tokens(word, value)
+head(testTokens)
+```
+
+5. Analyze the frequency of each word
+```{r}
+testCount <- testTokens %>% count(word, sort = T)
+head(testCount)
+```
+
+6. Write a function to incorporate all actions above
+```{r}
+tokenization <- function(file){
+  
+  ## This function takes in a file and returns a tibble of the word frequency
+  
+  library(tidyverse)
+  library(tidytext)
+  wordFreq <- as_data_frame(file) %>% unnest_tokens(word, value) %>% count(word, sort = T)
+    #make file a data frame
+    #clean up (remove punctuations, convert everything to lowercase)
+    #count the frequency of each word
+  
+  return(wordFreq)
+}
+```
+
+7. Test the function and compare that to the outcome of step 5. The two results match!
+```{r, message=FALSE, warning=FALSE}
+head(tokenization(testFile))
+```
+
+## Profanity filtering
+The profanity words are downloaded from [here](https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words)
+
+1. Make a test file with bad words and a test reference list
+```{r}
+testBad <- c('Shit! this is bad', 'you look sexy in that', 'hot chocolate', 'i really love that how to get away with murder show')
+testList <- c('shit', 'sexy', 'hot chick', 'how to murder')
+```
+
+2. Convert all words to lowercase and filter profanity
+```{r}
+testFilt <- tolower(testBad)
+for (i in 1:length(testList)){
+  testFilt <- gsub(testList[i], "", testFilt)
+}
+```
+
+3. Compare the results of pre- and post-profanity filtering
+```{r}
+testBad
+testFilt
+```
+
+4. Write a function to remove profanity
+```{r}
+rmProfanity <- function(file, reference){
+  
+  ## This function takes in an original file and removes profanity 
+  ## based on the words found in the reference file
+  ## Note that the original file will be replaced with the filtered file!
+
+  file <- tolower(file)
+  for (i in 1:length(reference)){
+    file <- gsub(pattern = reference[i], replacement = '', x = file)
+    #needs to update the file as the loop goes through
+  }
+  return(file)
+}
+```
+
+5. Test the function and compare that to the outcome of step 3. The two results match!
+```{r}
+testBad
+rmProfanity(testBad, testList)
+```
+
+6. Use the comprehensive list of profanity as a reference and compare the outcome
+```{r}
+profList <- readLines('badWords.txt')
+rmProfanity(testBad, profList)
+```
