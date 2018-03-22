@@ -1,5 +1,5 @@
 ---
-title: "Task2: Exploratory Data Analysis"
+title: "Task 2: Exploratory Data Analysis"
 author: "Amber Wang"
 date: "3/20/2018"
 output: html_document
