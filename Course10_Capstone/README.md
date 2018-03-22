@@ -10,3 +10,8 @@ This is the tenth course of the Coursera Data Science Specialization, **Data Sci
     - [rmProfanity.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/rmProfanity.R)
  - [Task 1 writeup](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/Task1.html)
  - [Week 1 quiz](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/W1Quiz.html)
+ 
+### Task 2: Exploratory data analysis
+ - Exploratory analysis - perform a thorough exploratory analysis of the data, understanding the distribution of words and relationship between the words in the corpora.
+ - Understand frequencies of words and word pairs - build figures and tables to understand variation in the frequencies of words and word pairs in the data. 
+ - [Task 2 writeup](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/Task2.html)
