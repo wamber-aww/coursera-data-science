@@ -1,7 +1,5 @@
 ---
 title: "Task 4: Prediction Model"
-author: "AmberWang"
-date: "3/29/2018"
 output: html_document
 ---
 
