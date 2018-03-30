@@ -1,0 +1,124 @@
+---
+title: "Week 3 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+```{r}
+suppressMessages(library(data.table))
+nGramAll <- fread('predictionTableFull.csv')
+source('nextWords.R')
+```
+
+1. Q1
+```{r}
+nextWords('The guy in front of me just bought a pound of bacon, a bouquet, and a case of', 5)
+```
+  - soda
+  - pretzels
+  - **beer**
+  - cheese
+
+2. Q2
+```{r}
+nextWords("You're the reason why I smile everyday. Can you follow me please? It would mean the", 5)
+```
+  - **world**
+  - universe
+  - best
+  - most
+
+3. Q3
+```{r}
+nextWords("Hey sunshine, can you follow me and make me the", 5)
+```
+  - saddest
+  - smelliest
+  - **happiest**
+  - bluest
+
+4. Q4
+```{r}
+result <- nextWords("Very early observations on the Bills game: Offense still struggling but the", 1000)
+match(c('defense', 'crowd', 'players', 'referees'), result)
+```
+  - **defense**
+  - *crowd*
+  - players
+  - referees
+  
+  - NOTE: incorrect prediction
+
+5. Q5
+```{r}
+result <- nextWords("Go on a romantic date at the", 1000)
+match(c('movies', 'grocery', 'beach', 'mall'), result)
+```
+  - movies
+  - grocery
+  - **beach**
+  - mall
+
+6. Q6
+```{r}
+nextWords("Well I'm pretty sure my granny has some old bagpipes in her garage I'll dust them off and be on my", 5)
+```
+  - motocycle
+  - phone
+  - horse
+  - **way**
+
+7. Q7
+```{r}
+nextWords("Ohhhhh #PointBreak is on tomorrow. Love that film and haven't seen it in quite some", 5)
+```
+  - years
+  - weeks
+  - **time**
+  - thing
+
+8. Q8
+```{r}
+nextWords("After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little", 5)
+```
+
+  - Try with only last two words
+```{r}
+result <- nextWords("his little", 15)
+match(c('eyes', 'fingers', 'ears', 'toes'), result)
+match(c('eye', 'finger', 'ear', 'toe'), result)
+```
+
+  - eyes
+  - **fingers**
+  - ears
+  - toes
+  
+  - NOTE: incorrect prediction since my model uses the last three words to predicts
+
+9. Q9
+```{r}
+result <- nextWords("Be grateful for the good times and keep the faith during the", 1000)
+match(c('hard', 'worse', 'bad', 'sad'), result)
+```
+  - hard
+  - worse
+  - **bad**
+  - sad
+  
+  - NOTE: unable to predict
+
+10. Q10
+```{r}
+result <- nextWords("If this isn't the cutest thing you've ever seen, then you must be", 100)
+match(c('insensitive', 'insane', 'callous', 'asleep'), result)
+```
+  - insensitive
+  - **insane**
+  - callous
+  - asleep
+  
+  - NOTE: unable to predict
