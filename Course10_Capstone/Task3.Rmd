@@ -1,0 +1,190 @@
+---
+title: "Task 3: Modeling"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, message = FALSE, warning = FALSE, cache.lazy = FALSE, eval = FALSE)
+```
+
+## Instructions
+The first step in building a predictive model for text is understanding the distribution and relationship between the words, tokens, and phrases in the text. The goal of this task is to understand the basic relationships you observe in the data and prepare to build your first linguistic models.
+
+The goal of this project is just to display that you've gotten used to working with the data and that you are on track to create your prediction algorithm. Please submit a report on R Pubs that explains your exploratory analysis and your goals for the eventual app and algorithm. This document should be concise and explain only the major features of the data you have identified and briefly summarize your plans for creating the prediction algorithm and Shiny app in a way that would be understandable to a non-data scientist manager. 
+
+You should make use of tables and plots to illustrate important summaries of the data set. The motivation for this project is to: 
+
+  1. Demonstrate that you've downloaded the data and have successfully loaded it in.
+  2. Create a basic report of summary statistics about the data sets.
+  3. Report any interesting findings that you amassed so far.
+  4. Get feedback on your plans for creating a prediction algorithm and Shiny app.
+
+## Tasks to accomplish
+  1. **Exploratory analysis** - perform a thorough exploratory analysis of the data, understanding the distribution of words and relationship between the words in the corpora.
+  2. **Understand frequencies of words and word pairs** - build figures and tables to understand variation in the frequencies of words and word pairs in the data.
+
+## Basic setup
+### Load libraries
+```{r, eval = TRUE}
+library(quanteda)
+library(readtext)
+library(data.table)
+library(stringr)
+```
+
+### Read in data
+1. Load data
+```{r}
+if(!file.exists('./final/en_US/en_US.blogs.txt')){
+  download.file('https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip',
+                destfile = paste0(getwd(), 'Coursera-SwiftKey.zip'),
+                method = 'curl', quiet = T)
+  unzip('./Coursera-SwiftKey.zip')
+}
+
+rawBlogs <- readtext(paste0(getwd(), '/final/en_US/en_US.blogs.txt'))
+rawNews <- readtext(paste0(getwd(), '/final/en_US/en_US.news.txt'))
+rawTwts <- readtext(paste0(getwd(), '/final/en_US/en_US.twitter.txt'))
+```
+
+### Create corpus
+1. Make individual corpus file
+```{r}
+corpBlogs <- corpus(rawBlogs)
+docvars(corpBlogs, 'Source') <- 'blogs'
+
+corpNews <- corpus(rawNews)
+docvars(corpNews, 'Source') <- 'news'
+
+corpTwts <- corpus(rawTwts)
+docvars(corpTwts, 'Source') <- 'twitter'
+```
+
+2. Combine into one corpus
+```{r}
+corpAll <- corpBlogs + corpNews + corpTwts
+```
+
+3. Remove unecesary files to free up memory
+```{r}
+rm(rawBlogs, rawNews, rawTwts)
+rm(corpBlogs, corpNews, corpTwts)
+```
+
+## Data analysis
+### Preprocessing
+1. Write a function to tokenize the corpus and filter profanity
+```{r}
+tokenization <- function(input, what = 'word', ngrams = 1L) {
+  
+  ## This function calls the tokens function from quanteda
+  ## takes an input (character, corpus, or token object)
+  ## and returns the tokenized object
+  
+  # step1: tokenize based on input values
+  results <- tokens(x = input, what = what, ngrams = ngrams,
+                    remove_numbers = T, remove_punct = T,
+                    remove_symbols = T, remove_separators = T,
+                    remove_twitter = T, remove_hyphens = T,
+                    remove_url = T)
+  
+  # step2: get a list of profanity
+  if (!file.exists('badWords.txt')) {
+  download.file('https://raw.githubusercontent.com/shutterstock/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en',
+                dest = paste0(getwd(), 'badWords.txt'),
+                method = 'curl', quiet = T)
+  }
+  prof <- readLines('badWords.txt', skipNul = T)
+  
+  # step3: remove profanity
+  results <- tokens_remove(results, pattern = prof)
+}
+```
+
+2. Tokenize words
+```{r, warning = FALSE}
+tokWord <- tokenization(corpAll, what = 'word')
+rm(corpAll)
+```
+
+### Distributions of word frequencies
+  - Write a function to generate n grams
+```{r}
+makeNgrams <- function(inputTokens, n, outName) {
+  ## inputTokens: tokenized object
+  ## number of grams
+  ## output file name
+  
+  tokWordNg <- tokens_ngrams(inputTokens, n = n, concatenator = ' ')
+  dfmWordNg <- dfm(tokWordNg, tolower = T)
+  nGram <- textstat_frequency(dfmWordNg)
+  write.csv(nGram, file = paste0(outName, '.csv'), row.names = F)
+}
+```
+
+  - Generage n grams
+```{r}
+makeNgrams(tokWord, 1L, 'uniGram')
+makeNgrams(tokWord, 2L, 'biGram')
+makeNgrams(tokWord, 3L, 'triGram')
+makeNgrams(tokWord, 4L, 'quadGram')
+makeNgrams(tokWord, 5L, 'quinGram')
+makeNgrams(tokWord, 6L, 'sixGram')
+makeNgrams(tokWord, 7L, 'septGram')
+```
+
+## Generating a model
+### nGram prediction table generation
+  - Write a function that generates the prediction table
+```{r}
+generatePred <- function(inputFile, thresh = 1L) {
+  
+  ## This function makes the prediction look up table
+  ## inputFile: the ngram csv file generated from quanteda
+  ## thresh: threshold to remove low frequency words (default is 1)
+
+  nGram <- fread(inputFile, select = c('feature', 'frequency'))
+  nGram <- nGram[nGram$frequency > thresh]
+  
+  nGram <- nGram[, query := strsplit(feature, " [^ ]+$")][]
+  nGram <- nGram[, predict := sub('.* (.*)$','\\1', feature)][]
+  
+  fwrite(nGram, paste0(sub('.csv', '', inputFile), 'Pred.csv'))
+  
+}
+```
+
+  - Generate nGrams (n = 2:7)
+```{r}
+generatePred('biGram.csv')
+generatePred('triGram.csv')
+generatePred('quadGram.csv')
+generatePred('quinGram.csv')
+generatePred('sixGram.csv')
+generatePred('septGram.csv')
+```
+
+### Merge all nGram predictions
+  - Make a big feature frequency file
+```{bash}
+#Note this is processed in unix due to the large number of lines!!!
+cat biGramPred.csv <(sed '1d' triGramPred.csv) <(sed '1d' quadGramPred.csv) <(sed '1d' quinGramPred.csv) <(sed '1d' sixGramPred.csv) <(sed '1d' septGramPred.csv) > nGramPred.csv
+```
+
+  - Read in all predictions
+```{r}
+nGram <- fread('nGramPred.csv', select = c('query', 'predict', 'frequency'))
+nGram <- nGram[order(-frequency)]
+```
+
+  - Filter out frequency < 5 word combinations
+```{r}
+nGramFilt <- nGram[frequency >= 5]
+fwrite(nGramFilt, file = 'predictionTableFull.csv')
+```
+
+  - Only keep the unique queries (for predicting one word) and frequency >= 5
+```{r}
+nGramUni <- nGram[(!duplicated(nGram$query)) & (frequency >= 5)]
+fwrite(nGramUni, file = 'predictionTableUni.csv')
+```
