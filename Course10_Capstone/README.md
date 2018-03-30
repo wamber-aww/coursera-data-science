@@ -25,3 +25,4 @@ This is the tenth course of the Coursera Data Science Specialization, **Data Sci
  - Build a predictive model based on the previous data modeling steps - you may combine the models in any way you think is appropriate.
  - Evaluate the model for efficiency and accuracy - use timing software to evaluate the computational complexity of your model. Evaluate the model accuracy using different metrics like perplexity, accuracy at the first word, second word, and third word.
  - [Task 4 writeup](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/Task4.html)
+ - [Week 3 quiz](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/Task4.html)
