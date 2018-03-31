@@ -37,10 +37,10 @@ This is the tenth course of the Coursera Data Science Specialization, **Data Sci
 ### Task 6: Data Product
  - Create a product to highlight the prediction algorithm that you have built and to provide an interface that can be accessed by others via a Shiny app.
  - Create a data product to show off your prediction algorithm You should create a Shiny app that accepts an n-gram and predicts the next word.
- [Shiny app for word prediction](https://wamber.shinyapps.io/wordPred/)
- - [ui.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/ui.R)
- - [server.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/server.R)
- - [nextWordsApp.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/nextWordsApp.R)
+ - [Shiny app for word prediction](https://wamber.shinyapps.io/wordPred/)
+   - [ui.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/ui.R)
+   - [server.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/server.R)
+   - [nextWordsApp.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/nextWordsApp.R)
  
 ### Task 7: Slide Deck
  - Pitch your data product to your boss or an investor. The slide deck is constrained to be 5 slides or less and should: (1) explain how your model works, (2) describe its predictive performance quantitatively and (3) show off the app and how it works.
