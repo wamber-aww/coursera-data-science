@@ -1,0 +1,265 @@
+---
+title: "Week 2 Assignment: Analysis of Activity from a Personal Activity Monitoring Device"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+It is now possible to collect a large amount of data about personal movement using activity monitoring devices such as a Fitbit, Nike Fuelband, or Jawbone Up. These type of devices are part of the “quantified self” movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. But these data remain under-utilized both because the raw data are hard to obtain and there is a lack of statistical methods and software for processing and interpreting the data.  
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
+
+This assignment will be described in multiple parts. You will need to write a report that answers the questions detailed below. Ultimately, you will need to complete the entire assignment in a single R markdown document that can be processed by knitr and be transformed into an HTML file.  
+For the plotting aspects of this assignment, feel free to use any plotting system in R (i.e., base, lattice, ggplot2)  
+Fork/clone the [GitHub repository created for this assignment](http://github.com/rdpeng/RepData_PeerAssessment1). You will submit this assignment by pushing your completed files into your forked repository on GitHub. The assignment submission will consist of the URL to your GitHub repository and the SHA-1 commit ID for your repository state.  
+NOTE: The GitHub repository also contains the dataset for the assignment so you do not have to download the data separately.
+
+## Data
+The data for this assignment can be downloaded from [here](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip)  
+The variables included in this dataset are:  
+
+  - steps: Number of steps taking in a 5-minute interval (missing values are coded as 𝙽𝙰)
+  - date: The date on which the measurement was taken in YYYY-MM-DD format
+  - interval: Identifier for the 5-minute interval in which measurement was taken  
+The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
+
+## Review criteria
+1. **Repo**
+  - Valid GitHub URL
+  - At least one commit beyond the original fork
+  - Valid SHA-1
+  - SHA-1 corresponds to a specific commit
+
+2. **Commit containing full submission**
+  - Code for reading in the dataset and/or processing the data
+  - Histogram of the total number of steps taken each day
+  - Mean and median number of steps taken each day
+  - Time series plot of the average number of steps taken
+  - The 5-minute interval that, on average, contains the maximum number of steps
+  - Code to describe and show a strategy for imputing missing data
+  - Histogram of the total number of steps taken each day after missing values are imputed
+  - Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+  - All of the R code needed to reproduce the results (numbers, plots, etc.) in the report
+
+## Preprocessing
+### Loading and preprocessing the data
+1. Environment setup
+```{r setwd, message = FALSE, warning = FALSE}
+library(dplyr)
+library(ggplot2)
+library(Hmisc)
+```
+
+2. Read in the data
+```{r}
+if (!file.exists('data1.zip')){
+  download.file('https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip',
+                destfile = paste0(getwd(), '/data1.zip'),
+                method = 'curl', quiet = T)
+}
+unzip('data1.zip')
+raw <- read.csv('activity.csv', stringsAsFactors = F)
+```
+
+3. Process/transform the data
+```{r settime, wanring = FALSE, message = FALSE, warning = FALSE}
+raw$date <- as.POSIXct(raw$date, format = '%Y-%m-%d')
+#NOTE: dplyr doesn't recognize POSIXlt class. Can't use strptime!!!
+```
+
+## Data analysis
+### Mean total number of steps taken per day
+For this part of the assignment, the missing values in the dataset are ignored (removed)  
+
+1. Calculate the total number of steps taken per day
+```{r}
+Q1data <- group_by(raw[complete.cases(raw), ], date) %>% #remove the NAs
+  summarise(total = sum(steps, na.rm = T))
+  #group by date and then sum the steps for each day
+```
+
+2. Make a histogram of the total number of steps taken each day  
+  - Read more about the definition of histogram on [Wikipedia](https://en.wikipedia.org/wiki/Histogram)  
+  - In simple terms, histogram shows the distribution of one variable of interest
+```{r}
+ggplot(Q1data, aes(x = total)) +
+  geom_histogram(bins = 20) + 
+  xlab('Total steps per day') +
+  ylab('Frequency (count)') + 
+  scale_y_continuous(expand = c(0, 0)) + #remove white space underneath x axis
+  theme_classic() #use a minimal theme w/o grids and bg color
+```
+
+3. Calculate and report the mean and median of the total number of steps taken per day
+```{r}
+cat('Mean of the total number of steps taken per day:', mean(Q1data$total))
+cat('\n')
+cat('Median of the total number of steps taken per day:', median(Q1data$total))
+```
+  - If the NAs were not removed in the beginning, they will be interpreted as 0s and that will bring down the mean significantly and the median slightly
+
+4. What is mean total number of steps taken per day? **10766.19**
+
+### Average daily activity pattern 
+
+1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days
+```{r}
+Q2data <- group_by(raw, interval) %>% 
+   summarise(mean = mean(steps, na.rm = T))
+
+ggplot(Q2data, aes(x = interval, y = mean)) +
+  geom_line() +
+  xlab('5-Minute interval') +
+  ylab('Average steps') +
+  scale_y_continuous(expand = c(0, 0)) + #remove white space underneath x axis
+  theme_classic() #use a minimal theme w/o grids and bg color
+```
+
+
+2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r}
+cat('The', Q2data[which.max(Q2data$mean), ]$interval, 'th interval contains the maximum mean number of steps:', Q2data[which.max(Q2data$mean), ]$mean)
+```
+
+### Imputing missing values  
+
+1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r}
+sum(is.na(raw$steps))
+sum(is.na(raw$date))
+sum(is.na(raw$interval))
+   #of all three columns, only the step column has na values of 2304
+cat('There are', sum(is.na(raw$steps)), 'NAs in the steps column')
+```
+
+2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+```{r}
+Q3dataDayMean <- group_by(raw, date) %>% summarise(meanStepsPerday = mean(steps))
+cat('There are', sum(is.na(Q3dataDayMean$meanStepsPerday)), 'missing values')
+```
+  - Note that there are days w/o mean, indicating that w/i that day, no steps were recorded  
+  - This shows that I can't use the mean of that day to impute missing data
+
+```{r}
+table(is.na(Q2data$mean))
+```
+  - However if grouped by intervals, there is data for each interval (since no row is NA)  
+  - This indicates that I can impute missing values using the 5-min interval mean/median  
+
+The following function will allow imputing missing values using the 5-min interval mean
+```{r function,cache=TRUE}
+fillWithIntMean <- function(query, ref) {
+    #This function takes in two dataframes and imputes missing values
+    #The query dataframe is the one with missing values
+    #The ref dataframe is the one with the values that you want to fill the NAs
+  
+  imputedData <- c()
+    #initiate an empty vector that stores the imputed data
+  for (i in 1:nrow(query)) {
+    if (is.na(query[i, 'steps']) == T) { #if steps are missing
+      imputedData[i] <- ref[ref$interval == query[i, 'interval'], ]$mean
+          #first match the interval from the query to the reference
+          #then extract the mean steps from the reference
+          #and assign that to the imputedData vector
+    } else { #steps are not missing
+      imputedData[i] <- query[i, 'steps']
+          #retain the original data
+    }
+  }
+  
+  return(imputedData) #note that a vector is returned!!!
+}
+```
+
+3. Create a new dataset that is equal to the original dataset but with the missing data filled in
+```{r}
+Q3data <- raw
+Q3data <- mutate(Q3data, steps = fillWithIntMean(Q3data, Q2data))
+head(Q3data)
+```
+  - Assign Q3data to raw (so won't change the raw data that was read in)  
+  - Assign the returned imputed vector into the steps column with dplyr  
+  - This takes a while since there is a loop and if/else in the function  
+
+Consider more efficient coding (see below):  
+
+  - Impute missing value with 5-min interval mean
+```{r}
+Q3data$impSteps2 <- impute(Q3data$steps, fun = rep(Q2data$mean, sum(is.na(Q3data$steps)) / nrow(Q2data)))
+head(Q3data)
+```
+This is sort of cheating, but since the missing values only happen when there is no value from the entire day. This means the the 288 mean steps for the 5-min intervals can be filled in in order. Wo I just repeated the mean of that 288 values by 8 times (there are 8 days with no step values at all) and fill out the NAs
+```{r}
+table(Q3data$steps == Q3data$impSteps2)
+```
+This also shows that the two imputation codes produces the same results
+```{r}
+Q3data <- Q3data[, -4]
+```
+Remove the 4th column that is the same with the steps column  
+
+- Impute missing value with the mean of steps with the entire data
+```{r}
+Q3data2 <- raw
+Q3data$impSteps3 <- impute(Q3data2$steps, fun = mean)
+head(Q3data)
+```
+  - This will also impute the missing values but the values are different
+```{r}
+Q3data <- Q3data[, -4]
+```
+
+
+4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```{r}
+Q3dataHist <- group_by(Q3data, date) %>% summarise(total = sum(steps))
+Q3dataHist$total <- as.integer(Q3dataHist$total)
+```
+Since steps should be integers, convert the imputed steps that are not integers. as.integer removes the decimal points. In this case it doesn't matter b/c all values are 10766.19 -> 10766  
+
+  - Make a histogram
+```{r}
+ggplot(Q3dataHist, aes(x = total)) +
+  geom_histogram(bins = 20) + 
+  xlab('Total steps per day') +
+  ylab('Frequency (count)') +
+  scale_y_continuous(expand = c(0, 0)) + #remove white space underneath x axis
+  theme_classic() #use a minimal theme w/o grids and bg color
+```
+
+
+  - Compute mean and median
+```{r}
+cat('Mean of the total number of steps taken per day after filling NAs:', mean(Q3dataHist$total)) 
+cat('Median of the total number of steps taken per day after filling NAs:', median(Q3dataHist$total)) 
+```
+There is no significant difference since I just used the mean of the non-missing data to impute the missing data - this will not change the mean  
+
+### Differences in activity patterns between weekdays and weekends
+```{r}
+Q4data <- Q3data
+```
+
+1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a seekday or weekend day
+```{r}
+Q4data$day <- ifelse(as.POSIXlt(Q4data$date)$wday %in% c(1:5), 'weekday', 'weekend')
+head(Q4data)
+```
+
+2. Make a penel plot containing a time series plot (i.e. type = 'l') of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)
+```{r}
+Q4dataAvg <- Q4data %>% group_by(day, interval) %>% summarise(meanSteps = mean(steps))
+ggplot(Q4dataAvg, aes(x = interval, y = meanSteps)) +
+  geom_line() +
+  facet_grid(day ~.) + #indicates row numbers == number of variables in the day col
+  xlab('5-Minute interval') +
+  ylab('Average steps') +
+  scale_y_continuous(expand = c(0, 0)) + #remove white space underneath x axis
+  theme_classic() #use a minimal theme w/o grids and bg color
+```
+
+3. Are there differences in activity patterns between weekdays and weekends? **There is a decrease of average steps taken per day on the weekends**
+
+

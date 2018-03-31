@@ -1,0 +1,219 @@
+---
+title: "Week 4 Assignment: Health and Economic Impacts of Severe Weather"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Instructions
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.  
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+
+The basic goal of this assignment is to explore the NOAA Storm Database and answer some basic questions about severe weather events. You must use the database to answer the questions below and show the code for your entire analysis. Your analysis can consist of tables, figures, or other summaries. You may use any R package you want to support your analysis.
+
+## Data
+The data for this assignment come in the form of a comma-separated-value file compressed via the bzip2 algorithm to reduce its size. The data for this assignment can be downloaded from [here](Storm Data)  
+
+The events in the database start in the year 1950 and end in November 2011. In the earlier years of the database there are generally fewer events recorded, most likely due to a lack of good records. More recent years should be considered more complete.
+
+## Synopsis
+The following analysis answers the follwing two questions:  
+  1. Across the United States, which types of events (as indicated in the ENVTYPE variable) are most harmful with respect to population health?  
+  2. Across the United States, which types of events have the greatest economic consequences?  
+
+## Preprocessing
+### Loading and preprocessing the data
+1. Environment setup
+```{r read libraries, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+2. Read in the data
+```{r}
+if (!file.exists('data2.csv.bz2')){
+  download.file('https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2',
+                destfile = paste0(getwd(), '/data2.csv.bz2'),
+                method = 'curl', quiet = T)
+}
+raw <- read.csv('data2.csv.bz2', stringsAsFactors = F)
+```
+
+3. Inspect the data  
+```{r inspect data}
+names(raw)
+```
+
+4. Select data  
+Since we're only interested in the correlation of the nation-wide event type to health and economic consequense, only the following columns will be selected for further analysis:  
+
+- EVTYPE: event type  
+- FATALITIES: number of fatalities  
+- INJURIES: number of injuries  
+- PROPDMG: property damage (dollars)  
+- PROPDMGEXP: magnitude of property damage (K = thousands, M = millions, B = billions)  
+- CROPDMG: crop damage (dollars)  
+- CROPDMGEXP: magnitude of crop damage (H = hundreds, K = thousands, M = millions, B = billions)  
+```{r}
+selectCol <- c('EVTYPE', 'FATALITIES', 'INJURIES', 'PROPDMG', 'PROPDMGEXP', 'CROPDMG', 'CROPDMGEXP')
+rawSel <- raw[, selectCol]
+summary(rawSel)
+```
+
+## Data analysis
+### Find types of events that are most harmful with respect to population health
+
+- Make a table that counts the total fatalities and injuries in each event type  
+```{r}
+Q1data <- rawSel[, 1:3] %>% 
+  group_by(EVTYPE) %>%
+  summarise_all(sum)
+summary(Q1data)
+```
+
+- Find the top 10 event types that causes the most fatalities  
+```{r}
+topFat <- Q1data[order(Q1data$FATALITIES, decreasing = T), ]
+```
+
+- Find the top 10 event types that causes the most injuries  
+```{r}
+topInj <- Q1data[order(Q1data$INJURIES, decreasing = T), ]
+```
+
+- Find the top 10 event types that causes the most fatalities and injuries
+```{r}
+Q1data$total <- rowSums(Q1data[, 2:3])
+topHealth <- Q1data[order(Q1data$total, decreasing = T), ]
+```
+
+
+### Find types of events that have the greatest economic consequences  
+The actual values are encoded in the 'EXP' column for property and crop damage  
+```{r}
+unique(rawSel$PROPDMGEXP)
+```
+Note that there are numbers, characters, and capitals all mixed together (even though now they're all factors)
+
+- Write a function that transform the 'EXP' column to the factor value of 10 (10**expType)  
+```{r}
+getVal <- function(expType) {
+  if (expType %in% c('h', 'H')) {
+    return(2)
+  } else if (expType %in% c('k', 'K')) {
+    return(3)
+  } else if (expType %in% c('m', 'M')) {
+    return(6)
+  } else if (expType %in% c('b', 'B')) {
+    return(9)
+  } else if (suppressWarnings(!is.na(as.numeric(expType)))) {
+    #won't show: NAs introduced by coercion when given a non-number
+    return(as.numeric(expType))
+  } else {
+    return(0)
+  }
+}
+```
+
+- Unit testing  
+```{r}
+c(10**getVal('h'), 10**getVal(4), 10**getVal('B'), 10**getVal('?'))
+```
+
+
+- Make a table that applys the function and calculates the actual value
+```{r}
+Q2data <- rawSel[, c(1, 4:7)] %>%
+  rowwise() %>%
+  mutate(PROP = PROPDMG*10**getVal(PROPDMGEXP), 
+         CROP = CROPDMG*10**getVal(CROPDMGEXP))
+head(Q2data)
+
+Q2dataSum <- Q2data[, c(1, 6, 7)] %>%
+  group_by(EVTYPE) %>%
+  summarise_all(sum)
+summary(Q2dataSum)
+```
+
+- Find the top 10 event types that causes the most property damage  
+```{r}
+topProp <- Q2dataSum[order(Q2dataSum$PROP, decreasing = T), ]
+```
+
+- Find the top 10 event types that causes the most crop damage  
+```{r}
+topCrop <- Q2dataSum[order(Q2dataSum$CROP, decreasing = T), ]
+```
+
+- Find toe top 10 event types that causes the most property and crop damages  
+```{r}
+Q2dataSum$total <- rowSums(Q2dataSum[, 2:3])
+topEcon <- Q2dataSum[order(Q2dataSum$total, decreasing = T), ]
+```
+
+## Results   
+### Find types of events that are most harmful with respect to population health   
+If separated by fatalities and injuries, the top 10 events that causes the most  
+
+  - fatilities   
+```{r}
+topFat[1:10, ]
+```
+
+  - injuries    
+```{r}
+topInj[1:10, ]
+```
+
+If adding the numbers of fatalities and injuries and ranked by the total number, the top 10 events that causes the most population health are as follows  
+```{r}
+topHealth[1:10, ]
+```
+
+The following figure depicts top 10 event types that causes population health hazards (sum of fatalities and injuries)  
+```{r}
+ggplot(data = topHealth[1:10, ], aes(x = reorder(EVTYPE, total), y = total)) +
+  #need to use reorder to prevent the categorical data from reordering
+  geom_bar(stat = 'identity') +
+  coord_flip() +
+  xlab('Event type') +
+  ylab('Total injuries and fatalities') +
+  ggtitle('Top 10 weather events that causes population health hazards') +
+  theme_classic()
+```
+
+**As the figure is shown, tornados are the most dangerous weather event that causes injuries and fatalities**
+
+### Find types of events that have the greatest economic consequences  
+If separated by property and crop damages, the top 10 events that causes the most  
+
+  - property damage 
+```{r}
+topProp[1:10, ]
+```
+
+  - crop damage  
+```{r}
+topCrop[1:10, ]
+```
+
+If combining the amounts lost in property and crop damage and ranked by the total number, the top 10 events that causes the most economic damages are  
+```{r}
+ggplot(data = topEcon[1:10, ], aes(x = reorder(EVTYPE, total), y = total)) +
+  #need to use reorder to prevent the categorical data from reordering
+  geom_bar(stat = 'identity') +
+  coord_flip() +
+  scale_y_continuous(trans = 'log10') +
+  xlab('Event type') +
+  ylab('Total property and crop damages (log10)') +
+  ggtitle('Top 10 weather events that causes economic hazards') +
+  theme_classic()
+```
+
+**As the figure is shown, flash flood causes by a significant amount of property and crop damages.** It should be noted that the property damage amount is significantly more that crop damage amount, as shown in summary below - the mean and maximum values fro property loss is 10**3 more than crops!  
+
+```{r}
+summary(topEcon[, -4])
+```
