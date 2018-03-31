@@ -1,0 +1,40 @@
+---
+title: "Next Word Prediction App"
+author: "Amber Wang"
+date: "3/31/2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+  - This is the tenth course of the Coursera Data Science Specialization, **Data Science Capstone**. This course focuses on analyzing a large corpus of text documents to discover the structure in the data and how words are put together to build a predictive text model.
+  - Contents
+    - Text data analysis: analysis of the corpus to understand the relationship of words and word pairs
+    - Predictive modeling: build basice n-gram models and develop algorithms to facilitate text prediction
+    - Shiny app development: produce a web-based Shiny app interphase to predict next words
+
+## Modeling
+  1. Getting and cleaning the data: profanity was first removed and words tokenized
+  2. Exploratory data analysis: the frequencies of words and word paris were calculated
+  3. Modeling: 2-7 gram models were built to facilitate word prediction
+  4. Prediciton model: 
+    - Katz's back-off model was used to predict the next word
+    - The model iterates from 7-gram to 2-gram to find matches in the last n-1 words
+    - In the case of unseen n-gram, the most frequent word, 'the', is returned
+    - To improve efficiency, word pairs that appear less than 5 times in the corpus were removed
+
+## Results
+  - The data analysis and model building writeups can be found on [GitHub](https://github.com/wamber-aww/coursera-data-science/tree/gh-pages/Course10_Capstone)
+  - The Shiny app for prediction can be found [here](https://wamber.shinyapps.io/wordPred/)
+  - The app takes in the following inputs:
+    1. query word/phrase that the user inputs
+    2. number of predicted next word
+  - The predicted next word(s) will show up in the order of most frequently used to less frequently used
+
+## Reference
+  - This course is part of the [Coursera Data Science Specialization](https://www.coursera.org/specializations/jhu-data-science)
+  - The [Quanteda](https://quanteda.io/) package was used for data analysis and n-gram generation
+  - Read more about [Katz's back-off model](https://en.wikipedia.org/wiki/Katz%27s_back-off_model)
