@@ -59,8 +59,6 @@ match(c('happiness', 'sleepiness', 'hunger', 'stress'), result)
   - hunger
   - **stress**
   
-  - NOTE: incorrect prediction
-
 5. Q5
 ```{r}
 result <- nextWords("When you were in Holland you were like 1 inch away from me but you hadn't time to take a", 1000)
