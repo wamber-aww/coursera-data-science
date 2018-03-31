@@ -1,0 +1,238 @@
+---
+title: 'Task 5: Creative Exploration'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Instructions
+So far you have used basic models to understand and predict words. In this next task, your goal is to use all the resources you have available to you (from the Data Science Specialization, resources on the web, or your own creativity) to improve the predictive accuracy while reducing computational runtime and model complexity (if you can). Be sure to hold out a test set to evaluate the new, more creative models you are building.
+
+## Tasks to accomplish
+  1. Explore new models and data to improve your predictive model.
+  2. Evaluate your new predictions on both accuracy and efficiency.
+
+## Build alternative models
+  1. Environment set up
+```{r}
+setwd(getwd())
+suppressMessages(library(data.table))
+```
+
+  2. Read in nGram data
+```{r}
+nGramAll <- fread('predictionTableFull.csv')
+```
+
+### The partial match model
+  3. Use partial match in substring to match
+```{r}
+filtStr <- 'all the'
+nGramAll[nGramAll$query %like% filtStr][20:25] #example output of substring match
+```
+
+  - Write a function that takes in a string and predicts next words with substring match
+```{r}
+nextWordsApprox <- function(rawStr, n) {
+
+  ## [A] Remove numbers and punctuations
+  filtList <- gsub('[[:punct:]]|[[:digit:]]', "", tolower(rawStr))
+  # strsplit by all white spaces
+  filtList <- unlist(strsplit(filtList, "\\s+"))
+  
+  ## [B] Extract last 6 words for query
+  if (length(filtList) > 6) {
+    filtList <- filtList[(length(filtList)-5):length(filtList)] #make query length 6
+    filtStr <- paste(filtList, collapse = " ") #combine back to sentence
+  } else {
+    filtStr <- paste(filtList, collapse = " ") #combine back to sentence
+  }
+  
+  ## [C] Returns all the matched words
+  predText <- nGramAll[nGramAll$query %like% filtStr]$predict
+  if (length(predText) > 0) {
+    #hit with 7 gram
+    finalText <- predText
+  } else {
+    #no hits
+    filtStr <- paste(filtList[2:length(filtList)], collapse = " ") #remove 1st word
+    predText <- nGramAll[nGramAll$query %like% filtStr]$predict
+    if (length(predText) > 0) {
+      #hit with 6 gram
+      finalText <- predText
+    } else {
+      #no hits
+      filtStr <- paste(filtList[3:length(filtList)], collapse = " ") #remove 2nd word
+      predText <- nGramAll[nGramAll$query %like% filtStr]$predict
+      if (length(predText) > 0) {
+        #hit with 5 gram
+        finalText <- predText
+      } else {
+        #no hits
+        filtStr <- paste(filtList[4:length(filtList)], collapse = " ") #remove 3rd word
+        predText <- nGramAll[nGramAll$query %like% filtStr]$predict
+        if (length(predText) > 0) {
+          #hit with 4 gram
+          finalText <- predText
+        } else {
+          #no hits
+          filtStr <- paste(filtList[5:length(filtList)], collapse = " ") #remove 4th word
+          predText <- nGramAll[nGramAll$query %like% filtStr]$predict
+          if (length(predText) > 0) {
+            #hit with 3 gram
+            finalText <- predText
+          } else {
+            #no hits
+            filtStr <- paste(filtList[6:length(filtList)], collapse = " ") #remove 5th word (one word left)
+            predText <- nGramAll[nGramAll$query %like% filtStr]$predict
+            if (length(predText) > 0) {
+              #hit with 2 gram
+              finalText <- predText
+            } else {
+              #no hits
+              finalText <- 'the' #most common word
+            }
+          }
+        }
+      }
+    }  
+  }
+  return(finalText[1:n])
+} #end of function braket
+```
+
+  - Test the function: returns 1 word with the substring match model
+```{r}
+queryStr <- 'Hello. My name is Apple and I am 2 years.'
+start <- Sys.time()
+nextWordsApprox(queryStr, 1)
+Sys.time() - start
+```
+
+  - Test the function: returns 1 word with the exact match model
+```{r}
+source('nextWords.R')
+queryStr <- 'Hello. My name is Apple and I am 2 years.'
+start <- Sys.time()
+nextWords(queryStr, 1)
+Sys.time() - start
+```
+
+  - The partial match model is **extremely slow**!!!
+
+#### Revisit quiz 2
+  - Only evaluate the four questions the exact match model wasn't able to solve
+  1. Q4
+```{r}
+result <- nextWordsApprox("Very early observations on the Bills game: Offense still struggling but the", 1000)
+match(c('defense', 'crowd', 'players', 'referees'), result)
+```
+  - **defense**
+  - *crowd*
+  - players
+  - referees
+  
+  - NOTE: incorrect prediction
+  
+  2. Q8
+```{r}
+nextWordsApprox("After the ice bucket challenge Louis will push his long wet hair out of his eyes with his little", 5)
+```
+
+  - Try with only last two words
+```{r}
+result <- nextWordsApprox("his little", 100)
+match(c('eyes', 'fingers', 'ears', 'toes'), result)
+match(c('eye', 'finger', 'ear', 'toe'), result)
+```
+
+  - eyes
+  - **fingers**
+  - ears
+  - toes
+  
+  - NOTE: incorrect prediction since my model uses the last three words to predicts
+
+  3. Q9
+```{r}
+result <- nextWordsApprox("Be grateful for the good times and keep the faith during the", 5000)
+match(c('hard', 'worse', 'bad', 'sad'), result)
+```
+  - hard
+  - worse
+  - **bad**
+  - sad
+  
+  - NOTE: unable to predict
+
+  4. Q10
+```{r}
+result <- nextWordsApprox("If this isn't the cutest thing you've ever seen, then you must be", 5000)
+match(c('insensitive', 'insane', 'callous', 'asleep'), result)
+```
+  - insensitive
+  - **insane**
+  - callous
+  - asleep
+  
+  - NOTE: unable to predict
+  
+  5. Conclusion: The substring match model is slower and also failed to predict the four questions that the exact match model couldn't predict. This model will be disgarded :(
+  
+### The partial query and partial match model
+
+  - Test if first selecting for 'key words' coupled with the partial match model will improve prediciton
+  1. Q4
+```{r}
+result <- nextWordsApprox("game: Offense struggl", 1000)
+match(c('defense', 'crowd', 'players', 'referees'), result)
+```
+  - **defense**
+  - *crowd*
+  - players
+  - referees
+  
+  - NOTE: incorrect prediction
+  
+  2. Q8
+```{r}
+result <- nextWordsApprox("push long hair with his", 1000)
+match(c('eyes', 'fingers', 'ears', 'toes'), result)
+match(c('eye', 'finger', 'ear', 'toe'), result)
+```
+
+  - *eyes*
+  - **fingers**
+  - ears
+  - toes
+  
+  - NOTE: incorrect prediction
+
+  3. Q9
+```{r}
+result <- nextWordsApprox("keep faith", 1000)
+match(c('hard', 'worse', 'bad', 'sad'), result)
+```
+  - hard
+  - worse
+  - **bad**
+  - sad
+  
+  - NOTE: unable to predict
+
+  4. Q10
+```{r}
+result <- nextWordsApprox("you must be", 5000)
+match(c('insensitive', 'insane', 'callous', 'asleep'), result)
+```
+  - insensitive
+  - **insane**
+  - callous
+  - asleep
+  
+  - NOTE: unable to predict
+  
+  5. Still failed to predict the next word :(
+

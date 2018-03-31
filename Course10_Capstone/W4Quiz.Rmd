@@ -1,0 +1,130 @@
+---
+title: "Week 4 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+```{r}
+suppressMessages(library(data.table))
+nGramAll <- fread('predictionTableFull.csv')
+source('nextWords.R')
+```
+
+1. Q1
+```{r}
+result <- nextWords("When you breathe, I want to be the air for you. I'll be there for you, I'd live and I'd", 100)
+match(c('sleep', 'give', 'die', 'eat'), result)
+```
+  - sleep
+  - *give*
+  - **die**
+  - eat
+  
+  - NOTE: incorrect prediction
+
+2. Q2
+```{r}
+result <- nextWords("Guy at my table's wife got up to go to the bathroom and I asked about dessert and he started telling me about his", 100)
+match(c('marital', 'financial', 'spiritual', 'horticultural'), result)
+```
+  - **marital**
+  - financial
+  - spritual
+  - horticultural
+  
+  - NOTE: unable to predict
+
+3. Q3
+```{r}
+result <- nextWords("I'd give anything to see arctic monkeys this", 100)
+match(c('morning', 'weekend', 'decade', 'month'), result)
+```
+  - *morning*
+  - **weekend**
+  - decade
+  - month
+  
+  - NOTE: incorrect prediction
+
+4. Q4
+```{r}
+result <- nextWords("Talking to your mom has the same effect as a hug and helps reduce your", 100)
+match(c('happiness', 'sleepiness', 'hunger', 'stress'), result)
+```
+  - happiness
+  - sleepiness
+  - hunger
+  - **stress**
+  
+  - NOTE: incorrect prediction
+
+5. Q5
+```{r}
+result <- nextWords("When you were in Holland you were like 1 inch away from me but you hadn't time to take a", 1000)
+match(c('minute', 'look', 'walk', 'picture'), result)
+```
+  - minute
+  - *look*
+  - walk
+  - **picture**
+  
+  - NOTE: incorrect prediction
+
+6. Q6
+```{r}
+result <- nextWords("I'd just like all of these questions answered, a presentation of evidence, and a jury to settle the", 1000)
+match(c('account', 'case', 'incident', 'matter'), result)
+```
+  - account
+  - *case*
+  - incident
+  - **matter**
+  
+  - NOTE: incorrect prediction (even though I think the answer is wrong)
+
+7. Q7
+```{r}
+result <- nextWords("I can't deal with unsymetrical things. I can't even hold an uneven number of bags of groceries in each", 1000)
+match(c('finger', 'arm', 'toe', 'hand'), result)
+```
+  - finger
+  - arm
+  - toe
+  - **hand**
+
+8. Q8
+```{r}
+nextWords("Every inch of you is perfect from the bottom to the", 5)
+```
+
+  - middle
+  - center
+  - side
+  - **top**
+
+9. Q9
+```{r}
+result <- nextWords("I’m thankful my childhood was filled with imagination and bruises from playing", 1000)
+match(c('outside', 'inside', 'weekly', 'daily'), result)
+```
+  - **outside**
+  - insdie
+  - weekly
+  - daily
+
+  - NOTE: unable to predict
+
+10. Q10
+```{r}
+result <- nextWords("I like how the same people are in almost all of Adam Sandler's", 100)
+match(c('movies', 'novels', 'stories', 'pictures'), result)
+```
+  - **movies**
+  - novels
+  - stories
+  - pictures
+  
+  - NOTE: unable to predict
