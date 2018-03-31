@@ -27,3 +27,10 @@ This is the tenth course of the Coursera Data Science Specialization, **Data Sci
  - [Task 4 writeup](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/Task4.html)
  - [Week 3 quiz](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/W3Quiz.html)
    - [nextWords.R](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course10_Capstone/nextWords.R)
+
+### Task 5: Creative exploration
+ - Explore new models and data to improve your predictive model.
+ - Evaluate your new predictions on both accuracy and efficiency.
+ - [Task 5 writeup](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/Task5.html)
+ - [Week 4 quiz](https://wamber-aww.github.io/coursera-data-science/Course10_Capstone/W4Quiz.html)
+ 
