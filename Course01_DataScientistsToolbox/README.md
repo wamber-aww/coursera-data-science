@@ -28,4 +28,4 @@ This course focuses primarily on getting you set up with the appropriate tools a
 ### Week 4: Course Project Submission & Evaluation
   - In the Course Project, you will demonstrate that you've set up all of the necessary accounts for the tools we'll be using. You are required to evaluate and grade at least four of your classmates' projects. For this course, the project can be evaluated with a series of yes/no answers to determine whether people completed the required installations.
   - Part of the course project includes submitting a screenshot to demonstrate you have installed the relevant software. Be sure not to take a screenshot with other applications open that may reveal personal information or anything else you don't want others to see.
-  - [Week 4 assignment](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W4Hw.md)
+  - [Week 4 assignment writeup](https://github.com/wamber-aww/coursera-data-science/blob/gh-pages/Course01_DataScientistsToolbox/W4Hw.md)
