@@ -37,7 +37,7 @@ study was simple enough to be repeated by an independent investigator.
 5. Which of the following is a reason why publishing **reproducible research** is increasingly
 important?  
   - Most studies today are small-scale and easily replicated.
-  - Computing power is limited today, making it di􀃕cult to apply sophisticated statistical methods.
+  - Computing power is limited today, making it  difficultd apply sophisticated statistical methods.
   - The statistical methods for most studies can be accurately described using
 plain language.
   - **New technologies are increasing the rate of data collection, creating datasets that are more complex and extremely high dimensional.**
@@ -66,7 +66,7 @@ plain language.
   - A web server for publishing documents.
   - **A programming language like R.**
 
-10. What is one way in which the knitr system differs from Sweave??
+10. What is one way in which the knitr system differs from Sweave?
   - knitr is written in python instead of R.
   - knitr lacks features like caching of code chunks.
   - knitr was developed by Friedrich Leisch.
