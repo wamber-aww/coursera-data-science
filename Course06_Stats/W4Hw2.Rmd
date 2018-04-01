@@ -1,0 +1,156 @@
+---
+title: "Week 4 Assignment II: ToothGrowth Data Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+In this project we're going to analyze the ToothGrowth data in the R datasets package.
+
+  1. Load the ToothGrowth data and perform some basic exploratory data analyses
+  2. Provide a basic summary of the data.
+  3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+  4. State your conclusions and the assumptions needed for your conclusions.
+
+## Data
+```{r}
+data(ToothGrowth)
+```
+
+## Analysis
+### Setup the environment
+```{r, message = FALSE, warning = FALSE}
+library(ggplot2)
+library(dplyr)
+library(datasets)
+data(ToothGrowth)
+```
+
+Read about the dataset with ?ToothGrwoth (due to space limit, the description is not printed out) 
+
+### Exploratory data analysis
+1. Since we are interested in the difference in tooth length given different doses and supplements, stratify the data and compare the mean (meanLength), median (medianLength), and standard deviation (sdLength) of the tooth length
+```{r}
+ToothGrowth %>% group_by(supp, dose) %>%
+  summarise(meanLength = mean(len), medianLength = median(len), sdLength = sd(len))
+```
+
+The following patterns were observed from the table and figure (see below):  
+
+ - Guinea pigs treated with 0.5 and 1mg/day of orange juice have on average longer tooth length than those treated with vitamin C. However, this trend is not obvious in guinea pigs treated with 2mg/day of orange juice vs vitamin C
+ - Within the same supplement type, higher dose seems to lead to a longer average tooth length, and this is observed for both supplement types
+
+2. Plot the distribution of the raw data  
+```{r, echo=FALSE}
+ggplot(data = ToothGrowth, aes(x = supp, y = len, fill = supp)) +
+  geom_boxplot() +
+  geom_point() +
+  facet_grid(. ~ dose) +
+  xlab('Supplement type') +
+  ylab('Tooth length') +
+  ggtitle('Tooth growth of varying doses and supplement type in guinea pigs') +
+  scale_fill_brewer(palette = 'Pastel1',
+                    labels = c('Orange juice', 'Vitamin C'),
+                    name = 'Supplement type')
+
+```
+
+
+### Hypothesis testing: difference in tooth growth treated with orange juice and vitamin C
+- Null hypothesis: there is no difference in tooth growth in guinea pigs treated with the same dose of orange juice and vitamin C
+- Alternative hypothesis: there is a difference in tooth growth in guinea pigs treated with the same dose of orange juice and vitamin C
+- Control type I error at less than 0.05 (p<0.05)
+
+1. Stratify data by three doses: low dose (0.5mg/day), medium dose (1mg/day), high dose (2mg/day)
+```{r}
+ld <- ToothGrowth[ToothGrowth$dose == 0.5, ]
+md <- ToothGrowth[ToothGrowth$dose == 1, ]
+hd <- ToothGrowth[ToothGrowth$dose == 2, ]
+```
+
+2. Perform hypothesis testing for low dose (0.5mg/day)
+```{r}
+t.test(ld$len ~ ld$supp, alternative = 'two.sided', paired = F, var.equal = F)$p.value
+```
+  Since the p-value is less than type I error (0.05), the null hypothesis is rejected. The mean tooth length when treated at 0.5mg/day with orange juice is significantly longer than that of vitamin C.
+
+3. Perform hypothesis testing for medium dose (1mg/day) - code not shown but similar to above
+```{r, echo = F}
+t.test(md$len ~ md$supp, 
+       alternative = 'two.sided',
+       paired = F, var.equal = F, conf.level = 0.95)$p.value
+```
+  Since the p-value is less than type I error (0.05), the null hypothesis is rejected. The mean tooth length when treated at 1mg/day with orange juice is significantly longer than that of vitamin C.
+
+4. Perform hypothesis testing for high dose (2mg/day) - code not shown
+```{r, echo = F}
+t.test(hd$len ~ hd$supp, 
+       alternative = 'two.sided',
+       paired = F, var.equal = F, conf.level = 0.95)$p.value
+```
+  The mean tooth length when treated at 2mg/day with orange juice is not significantly different than that of vitamin C.
+
+### Hypothesis testing: difference in tooth growth treated with different doses of supplements
+- Null hypothesis: there is no difference in tooth growth in guinea pigs treated with different doses of orange juice or vitamin C
+- Alternative hypothesis: there is a difference in tooth growth in guinea pigs treated with different doses of orange juice or vitamin C
+- Control the type I error rate at less than 0.05 (p<0.05)
+
+1. Stratify data by two supplement types, orange juice and vitamin C, and then strtify the data to contain only two doses (since t.test can only take conlumns containing two levels) - code not shown
+```{r, echo = F}
+oj <- ToothGrowth[ToothGrowth$supp == 'OJ', ]
+oj_lm <- oj[oj$dose <= 1, ]
+oj_lh <- oj[oj$dose != 1, ]
+oj_mh <- oj[oj$dose >= 1, ]
+vc <- ToothGrowth[ToothGrowth$supp == 'VC', ]
+vc_lm <- vc[vc$dose <= 1, ]
+vc_lh <- vc[vc$dose != 1, ]
+vc_mh <- vc[vc$dose >= 1, ]
+```
+2. Perform hypothesis testing for orange juice at different doses
+Three different doses are compared to each other. The family-wise error rate will be controlled using the Bonferroni correction to adjust the p-value
+```{r}
+oj_lm_p <- t.test(oj_lm$len ~ oj_lm$dose, alternative = 'two.sided', paired = F, var.equal = F)$p.value
+oj_lh_p <- t.test(oj_lh$len ~ oj_lh$dose, alternative = 'two.sided', paired = F, var.equal = F)$p.value
+oj_mh_p <- t.test(oj_mh$len ~ oj_mh$dose, alternative = 'two.sided', paired = F, var.equal = F)$p.value
+data.frame(comparisons = c('0.5 vs 1', '0.5 vs 2', '1 vs 2'),
+           pvalue = c(oj_lm_p, oj_lh_p, oj_mh_p),
+           bonferroni = p.adjust(c(oj_lm_p, oj_lh_p, oj_mh_p), method = 'bonferroni'))
+```
+  Since the Bonferroni-corrected p-values for 0.5 vs 1 and 0.5 vs 2 comparisons are less than 0.05, the null hypotheses are rejected. The mean tooth length when treated with orange juice at 1mg/day and 2mg/day is significantly longer than that of 0.5mg/day. On the other hand, there is no significant difference in tooth length with treatment of 1mg/day compared to 2mg/day of orange juice. 
+
+3. Perform hypothesis testing for vitamin C at different doses
+Three different doses are compared to each other. The family-wise error rate will be controlled using the Bonferroni correction to adjust the p-value - code not shown
+```{r, echo = F}
+#low vs medium dose
+vc_lm_p <- t.test(vc_lm$len ~ vc_lm$dose, alternative = 'two.sided', 
+                  paired = F, var.equal = F, conf.level = 0.95)$p.value
+
+#low vs high dose
+vc_lh_p <- t.test(vc_lh$len ~ vc_lh$dose, alternative = 'two.sided',
+                  paired = F, var.equal = F, conf.level = 0.95)$p.value
+
+#medium vs high dose
+vc_mh_p <- t.test(vc_mh$len ~ vc_mh$dose, alternative = 'two.sided',
+                  paired = F, var.equal = F, conf.level = 0.95)$p.value
+
+data.frame(comparisons = c('0.5 vs 1', '0.5 vs 2', '1 vs 2'),
+           pvalue = c(vc_lm_p, vc_lh_p, vc_mh_p),
+           bonferroni = p.adjust(c(vc_lm_p, vc_lh_p, vc_mh_p), method = 'bonferroni'))
+```
+  Since the Bonferroni-corrected p-values for all comparisons are less than 0.05, the null hypotheses are rejected. The mean tooth length when treated with vitamin C at 1mg/day and 2mg/day is significantly longer than that of 0.5mg/day, and the tooth length when treated with vitamin C at 2mg/day is significantly longer than that of 1mg/day.
+
+### Conclusions
+1. The assumptions made to perform the statistical tests
+  - Variance are different in the orange juice- and vitamin C-treated groups at different dose levels
+  - The different treatment groups are non-paired - this is not so much an assumption but how the experiment is actually condudcted, as specified in the **?ToothGrowh** description
+  - Assume all the observations are independent and identically distributed (iid)
+  - Assume tooth growht follows normal distribution
+
+2. Conculsions
+  - At doses of 0.5mg/day and 1mg/day, guinea pigs treated with orange juice have longer tooth length compared to those treated with vitamin C; however, the difference is not significant at 2mg/day
+  - In guinea pigs treated with orange juice, treatment at 1mg/day and 2mg/day results in on average longer tooth length than those treated at 0.5mg/day; however, the difference is not significant in 1mg/day compared to 2mg/day treatment groups
+  - In guinea pigs treated with vitamin C, there is a does-dependent effect in that the higher the dose is, the longer the tooth length is. Whether this relationship is linear requires further exploration.
+

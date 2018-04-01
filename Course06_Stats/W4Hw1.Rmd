@@ -1,0 +1,141 @@
+---
+title: "Week 4 Assignment I: Exponential Distribution and Central Limit Theorem"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Instructions
+In this project you will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.  
+Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials. You should
+
+  1. Show the sample mean and compare it to the theoretical mean of the distribution.
+  2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+  3. Show that the distribution is approximately normal.
+     In point 3, focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials.
+
+## Data
+1. The exponential distribution can be simulated in R with **rexp(n, lambda)** where lambda is the rate parameter. The mean and the standard deviation of exponential distribution is both 1/lambda  
+2. Set **lambda = 0.2** for **1000 simulations** simulations and investigate the distribution of averages of **40 exponentials**
+
+## Analysis
+### Simulations
+1. Set the parameters for performing the simulation
+```{r basic setups, message = FALSE, warning=FALSE}
+setwd(getwd())
+library(ggplot2)
+library(cowplot)
+
+lambda <- 0.2 #rate
+sampleN <- 40 #samples
+simN <- 1000 #simulations
+```
+
+2. Run the simulation 1000 times, each time calculating the mean of 40 samples drawn from the exponential distribution and saving it to the meanSim1K variable. For the sake of reproducibility, set seed
+```{r}
+set.seed(2) #for reproducibility purposes
+meanSim1K <- replicate(1000, mean(rexp(sampleN, rate = lambda)))
+```
+
+### Sample Mean versus Theoretical Mean
+1. The mean of the population mean is 1/lambda:
+```{r}
+1/lambda
+```
+
+2. The mean of the sample means (40 samples each time, 1000 simulations):
+```{r}
+mean(meanSim1K)
+```
+
+3. Visualize the differences in the mean of sample and population mean - due to page limitation, this is shown in the histogram below. The means of the sample (black line) and population (red line) mean are close to each other
+
+### Sample Variance versus Theoretical Variance
+1. The variance of the population mean is the population variance divided by sample number, 1/lambda^2/n:
+```{r}
+1/(lambda**2)/sampleN
+```
+
+2. The variance of the sample mean can be calculated by the var() function in R:
+```{r}
+var(meanSim1K)
+```
+
+3. Visualize the differences in the variance of sample and population mean. The sample (black line) and population (red line) distributions are close to each other, indicating that the variances are similar as well.  
+
+```{r, echo=FALSE}
+ggplot(data = as.data.frame(meanSim1K), aes(x = meanSim1K)) +
+  geom_histogram(binwidth = 0.1, aes(y = ..density..), alpha = 0.3) +
+  geom_density(color = 'black') + #density curve of the sample distribution
+  geom_vline(xintercept = mean(meanSim1K), color = 'black') +
+  stat_function(fun = dnorm, args = list(mean = 1/lambda, sd = 1/lambda/sqrt(sampleN)), color = 'red') +
+  geom_vline(xintercept = 1/lambda, color = 'red') +
+  xlab('Sample mean') +
+  ylab('Density') +
+  ggtitle('Histogram of 1000 simulations for mean of 40 samples')
+```
+
+### Distribution
+1. This section focuses on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials. Data generation is as follows:
+  - 30 random exponentials vs 40 random exponentials each time and repeated 30 times
+  - 1000 random exponentials vs 40 random exponentials each time and repeated 1000 times
+```{r plot, message=FALSE}
+simN30 <- replicate(30, mean(rexp(sampleN, rate = lambda))) 
+ #get 40 random samples and repeat 30 times
+simId30 <- replicate(30, (rexp(1, rate = lambda))) #get 30 random samples
+
+simN1000 <- replicate(1000, mean(rexp(sampleN, rate = lambda))) 
+ #get 40 random samples and repeat 1000 times
+simId1000 <- replicate(1000, (rexp(1, rate = lambda))) #get 1000 random samples
+```
+
+2. Plot the histogram of the distribution of the four scenarios:
+(A) Randomly sample 30 exponentials and compare the sample (black lines) to the population (red lines) distribution
+(B) Randomly sample 40 exponentials, calculate the mean, and repeat 30 times. Compare the sample mean (black lines) to the population mean (red lines) distribution
+(C) Same as (A), but the sample size is increased to 1000
+(D) Same as (B), but the simulations are increased to 1000
+
+```{r, warning=FALSE, echo=FALSE}
+p1 <- ggplot(data = as.data.frame(simId30), aes(x = simId30)) +
+        geom_histogram(binwidth = 0.1, aes(y = ..density..), alpha = 0.3) +
+        geom_density(color = 'black') + #density curve of the sample distribution
+        geom_vline(xintercept = mean(simId30), color = 'black') +
+        stat_function(fun = dexp, args = list(rate = lambda), color = 'red') +
+        geom_vline(xintercept = 1/lambda, color = 'red') +
+        xlab('Sample mean') + ylab('Density') +
+        xlim(c(0, 40)) + ylim(c(0, 0.5))
+  
+p2 <- ggplot(data = as.data.frame(simN30), aes(x = simN30)) +
+        geom_histogram(binwidth = 0.1, aes(y = ..density..), alpha = 0.3) +
+        geom_density(color = 'black') + #density curve of the sample distribution
+        geom_vline(xintercept = mean(simN30), color = 'black') +
+        stat_function(fun = dnorm, args = list(mean = 1/lambda, sd = 1/lambda/sqrt(sampleN)), color = 'red') +
+        geom_vline(xintercept = 1/lambda, color = 'red') +
+        xlab('Sample mean') + ylab('Density') +
+        xlim(c(2, 8)) + ylim(c(0, 1))
+  
+p3 <- ggplot(data = as.data.frame(simId1000), aes(x = simId1000)) +
+        geom_histogram(binwidth = 0.1, aes(y = ..density..), alpha = 0.3) +
+        geom_density(color = 'black') + #density curve of the sample distribution
+        geom_vline(xintercept = mean(simId1000), color = 'black') +
+        stat_function(fun = dexp, args = list(rate = lambda), color = 'red') +
+        geom_vline(xintercept = 1/lambda, color = 'red') +
+        xlab('Sample mean') + ylab('Density') +
+        xlim(c(0, 40)) + ylim(c(0, 0.5))
+
+p4 <- ggplot(data = as.data.frame(simN1000), aes(x = simN1000)) +
+        geom_histogram(binwidth = 0.1, aes(y = ..density..), alpha = 0.3) +
+        geom_density(color = 'black') + #density curve of the sample distribution
+        geom_vline(xintercept = mean(simN1000), color = 'black') +
+        stat_function(fun = dnorm, args = list(mean = 1/lambda, sd = 1/lambda/sqrt(sampleN)), color = 'red') +
+        geom_vline(xintercept = 1/lambda, color = 'red') +
+        xlab('Sample mean') + ylab('Density') +
+        xlim(c(2, 8)) + ylim(c(0, 1))
+
+plot_grid(p1, p2, p3, p4, labels = 'AUTO')
+```
+
+As shown in the figure, (A) and (C) are the distribution of 30 and 1000 randomly selected exponential samples, respectively. Hence, they resemble a distribution of the population, an **exponential distribution** (red line). As the sample size increases from 30 to 1000, the sample distribution becomes more similar to the exponential distribution (black line).  
+In (B) and (D), the distribution of 30 and 1000 simulations of means taken from 40 exponential samples resembles the distribution of the population mean, a **normal distribution** (red line). As the simulations increase from 30 to 1000, the sample mean distribution becomes more similar to the normal distribution (black line), as predicted by the **Central Limit Theorem**.  
