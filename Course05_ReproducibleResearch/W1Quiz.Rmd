@@ -11,9 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 of a replication of my study?
   - I give my data to an independent investigator at another institution, she
 analyzes the data and gets the same results as I originally obtained.
-  - I take my own data, analyze it again, and publish new findings.
-  - An investigator at another institution conducts a study addressing a di􀃗erent
-scientific question and publishes her findings.
+  - I take my own data, analyze it again, and publish new findings 
+  - An investigator at another institution conducts a study addressing a different scientific question and publishes her findings.
   - **An investigator at another institution conducts a study addressing the same question, collects her own data, analyzes it separately from me, and publishes her own findings.**
 
 2. Which of the following is a requirement for a published data analysis to be reproducible?
@@ -67,7 +66,8 @@ plain language.
   - A web server for publishing documents.
   - **A programming language like R.**
 
-10. What is one way in which the knitr system di􀃗erffers from Sweave?- knitr is written in python instead of R.
+10. What is one way in which the knitr system differs from Sweave??
+  - knitr is written in python instead of R.
   - knitr lacks features like caching of code chunks.
   - knitr was developed by Friedrich Leisch.
   - **knitr allows for the use of markdown instead of LaTeX.**
