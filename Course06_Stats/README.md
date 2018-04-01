@@ -25,8 +25,8 @@ We will begin looking into power, bootstrapping, and permutation tests.
 
 The project consists of two parts
   1. A simulation exercise: In this project you will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.
-    - [Week 4 assignment part 1 writeup]()
+    - [Week 4 assignment part 1 writeup](https://wamber-aww.github.io/coursera-data-science/Course06_Stats/W4Hw1.html)
     
   2. Basic inferential data analysis: analyze the ToothGrowth data in the R datasets package. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering). You will create a report to answer the questions. Given the nature of the series, ideally you'll use knitr to create the reports and convert to a pdf.
-    - [Week 4 assignment part 2 writeup]()
+    - [Week 4 assignment part 2 writeup](https://wamber-aww.github.io/coursera-data-science/Course06_Stats/W4Hw2.html)
 
