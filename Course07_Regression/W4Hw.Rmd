@@ -1,0 +1,88 @@
+---
+title: "Week 4 Assignment: Building Regression Models with the mtcars Dataset"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instructions
+You work for Motor Trend, a magazine about the automobile industry. Looking at a data set of a collection of cars, they are interested in exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+
+  1. Is an automatic or manual transmission better for MPG
+  2. Quantify the MPG difference between automatic and manual transmissions
+
+## Data
+```{r}
+data("mtcars")
+```
+
+## Analysis
+### Environment setup
+```{r settings, message = F, warning = F}
+library(ggplot2)
+library(dplyr)
+```
+
+### Exploratory Data Analyses
+
+Since the main interest is to understand the relationship between transmission and MPG, isolate the two variables for exploratory data analysis
+```{r expl analysis}
+mpgAm <- mtcars %>% select(mpg, am) %>% mutate(am = as.factor(am))
+ggplot(data = mpgAm, aes(x = am, y = mpg)) +
+  geom_boxplot() + geom_point() +
+  xlab('Transmission (0 = automatic, 1 = manual)') + 
+  ylab('Miles/(US) gallon')
+```
+
+From the box plot, it seems that manual transmission has higher mean of miles per gallon.
+
+### Fitting Models and Model Selection
+First fit all variables to mpg and look at the diagnostics to decide which ones to remove (set type-I error at 5%)
+```{r}
+raw <- mtcars %>% mutate(cyl = as.factor(cyl), vs = as.factor(vs), am = as.factor(am), gear = as.factor(gear), carb = as.factor(carb))
+fitAll <- lm(mpg ~ ., data = raw)
+summary(fitAll)$coef[, 4]
+```
+
+None of the coefficients has a p-value less than 5% in the full model, indicateing that variables should be selected - by slowly removing the most insignificant variables and refitting each time
+```{r}
+which.max(summary(fitAll)$coef[, 4]) #the cyl variable (cyl8 is the least significant)
+fitRaw <- raw %>% select(-cyl); fitRm <- lm(mpg ~ ., data = fitRaw); summary(fitRm)$coef[, 4]
+```
+
+Again, there are no coefficients with a significant p-value after removing the cyl variable. The next most insignificant varible is removed and this process is repeated until all coefficients are significant  
+```{r}
+#which.max(summary(fitRm)$coef[, 4]) #the carb variable
+fitRaw <- fitRaw %>% select(-carb); fitRm <- lm(mpg ~ ., data = fitRaw)
+#summary(fitRm)$coef[, 4]; which.max(summary(fitRm)$coef[, 4]) #the gear variable
+fitRaw <- fitRaw %>% select(-gear); fitRm <- lm(mpg ~ ., data = fitRaw)
+#summary(fitRm)$coef[, 4]; which.max(summary(fitRm)$coef[, 4]) #the vs variable
+fitRaw <- fitRaw %>% select(-vs); fitRm <- lm(mpg ~ ., data = fitRaw)
+#summary(fitRm)$coef[, 4]; which.max(summary(fitRm)$coef[, 4]) #the drat variable
+fitRaw <- fitRaw %>% select(-drat); fitRm <- lm(mpg ~ ., data = fitRaw)
+#summary(fitRm)$coef[, 4]; which.max(summary(fitRm)$coef[, 4]) #the disp variable
+fitRaw <- fitRaw %>% select(-disp); fitRm <- lm(mpg ~ ., data = fitRaw)
+#summary(fitRm)$coef[, 4]; which.max(summary(fitRm)$coef[, 4]) #the hp variable
+fitRaw <- fitRaw %>% select(-hp); fitRm <- lm(mpg ~ ., data = fitRaw)
+summary(fitRm)$coef[, 4]
+```
+
+Finally, after removing all the variables with insignificant p-values, three coefficients, wt (wieght of 1000 lbs), qseq (1/4 mile time), and am (Transmission), have p-values less than 0.05.  The porperties of this model is further explored
+
+```{r}
+summary(fitRm)
+```
+This model indicates that given a fixed weight and 1/4 mile time, the mpg of an automatic is 9.6178 miles/gallon, but increases to 9.6178 + 2.9358 = 12.5536 miles/gallon for a manual. In addition, the adusted R-squared for this model is 0.8336, and the p-value for this model is 1.21e-11, indicating that we fail to reject the null hypothesis, and conclude that there is a significant relationship between the variables and mpg
+
+### Diagnostics
+```{r}
+par(mfrow = c(2, 2))
+plot(fitRm)
+```
+
+The QQ plot shows a pretty good correlation of the standardized and theoretical residuals. There also doesn't seem to be any significant patterns in the other three plots, indicating a good fit of the selected model
+
+## Conclusions
+Going back to the questions: understanding the relationship between transmission and mpg. From the model, we can conclude that when the weight and 1/4 mile time are the same for two cars, and one is an automatic and the other manual, the manual one will have an average of 2.9358 higher miles/gallon than the automatic car. Perhaps that's why a lot of race cars are manual?

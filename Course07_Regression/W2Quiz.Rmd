@@ -1,0 +1,137 @@
+---
+title: "Week 2 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Consider the following data with x as the predictor and y as as the outcome.
+```{r}
+x <- c(0.61, 0.93, 0.83, 0.35, 0.54, 0.16, 0.91, 0.62, 0.62)
+y <- c(0.67, 0.84, 0.6, 0.18, 0.85, 0.47, 1.1, 0.65, 0.36)
+```
+
+Give a P-value for the two sided hypothesis test of whether β1 from a linear regression model is 0 or not.
+
+```{r}
+summary(lm (y ~ x))[4]
+```
+
+  - 0.025
+  - **0.05296**
+  - 2.325
+  - 0.391
+
+2. Consider the previous problem, give the estimate of the residual standard deviation.
+
+```{r}
+sqrt(sum(resid(lm(y~x))^2) / (length(y) - 2))
+```
+
+  - 0.3552
+  - 0.05296
+  - 0.4358
+  - **0.223**
+
+3. In the mtcars data set, fit a linear regression model of weight (predictor) on mpg (outcome). Get a 95% confidence interval for the expected mpg at the average weight. What is the lower endpoint?
+
+```{r}
+data("mtcars")
+y <- mtcars$mpg
+x <- mtcars$wt
+fit2 <- lm(y ~ x)
+predict(fit2, newdata = data.frame(x = mean(x)), interval = ('confidence'))
+
+fit3 <- lm(mtcars$mpg ~ I(mtcars$wt - mean(mtcars$wt)))
+confint(fit3)[1]
+```
+
+  - -4.00
+  - 21.190
+  - -6.486
+  - **18.991**
+
+4. Refer to the previous question. Read the help file for 𝚖𝚝𝚌𝚊𝚛𝚜. What is the weight coefficient interpreted as?
+
+```{r}
+?mtcars
+```
+
+  - The estimated expected change in mpg per 1 lb increase in weight.
+  - It can't be interpreted without further information
+  - The estimated 1,000 lb change in weight per 1 mpg increase.
+  - **The estimated expected change in mpg per 1,000 lb increase in weight.**
+
+5. Consider again the 𝚖𝚝𝚌𝚊𝚛𝚜 data set and a linear regression model with mpg as predicted by weight (1,000 lbs). A new car is coming weighing 3000 pounds. Construct a 95% prediction interval for its mpg. What is the upper endpoint?
+
+```{r}
+fit5 <- lm(mpg ~ wt, data = mtcars)
+predict(fit5, newdata = data.frame(wt = 3000/1000), interval = ('prediction'))[3]
+```
+
+  - **27.57**
+  - 14.93
+  - 21.25
+  - -5.77
+
+6. Consider again the 𝚖𝚝𝚌𝚊𝚛𝚜 data set and a linear regression model with mpg as predicted by weight (in 1,000 lbs). A “short” ton is defined as 2,000 lbs. Construct a 95% confidence interval for the expected change in mpg per 1 short ton increase in weight. Give the lower endpoint.
+
+```{r}
+fit6 <- lm(mpg ~ I(wt/2), data = mtcars)
+confint(fit6)[2]
+```
+
+  - -9.000
+  - **-12.973**
+  - 4.2026
+  - -6.486
+
+7. If my X from a linear regression is measured in centimeters and I convert it to meters what would happen to the slope coefficient?
+
+  - **It would get multiplied by 100.**
+  - It would get divided by 100
+  - It would get multiplied by 10
+  - It would get divided by 10
+
+```
+Multiply x by m --> divide slope by m
+Divide x by 100 --> multiply slope by m
+It would get multiplied by 100.
+```
+
+8. I have an outcome, Y, and a predictor, X and fit a linear regression model with Y = β0 + β1X + ϵ to obtain β^0 and β^1. What would be the consequence to the subsequent slope and intercept if I were to refit the model with a new regressor, X+c for some constant, c?
+
+```
+Y = b0 + b1*x
+Y = b0 + b1(x+c) - b1*c
+Y = b0-b1c + b1(x+c)
+The new intercept would be b0-cb1
+```
+  - **The new intercept would be β^0 − cβ^1**
+  - The new slope would be cβ^1
+  - The new intercept would be β^0 + cβ^1
+  - The new slope would be β^1 + c
+
+9. Refer back to the mtcars data set with mpg as an outcome and weight (wt) as the predictor. About what is the ratio of the the sum of the squared errors, ∑ni = 1(Yi − Y^i)^2 when comparing a model with just an intercept (denominator) to the model with the intercept and slope (numerator)?
+
+```{r}
+#intercept&slope sum of squared errors / intercept only sum of squared errors
+#total squared errors = regression squared errors + non-regression squared errors
+#R^2 = reg squared errors/total squared errors = 0.7528
+#non-regression squared error = 1-R^2
+1 - summary(lm(mtcars$mpg ~ mtcars$wt))$r.squared
+```
+
+  - 0.50
+  - **0.25**
+  - 4.00
+  - 0.75
+
+10. Do the residuals always have to sum to 0 in linear regression?
+
+  - **If an intercept is included, then they will sum to 0.**
+  - If an intercept is included, the residuals most likely won't sum to zero.
+  - The residuals never sum to zero.
+  - The residuals must always sum to zero.

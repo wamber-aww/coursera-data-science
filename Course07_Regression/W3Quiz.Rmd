@@ -1,0 +1,117 @@
+---
+title: "Week 3 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Consider the `mtcars` data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as confounder. Give the adjusted estimate for the expected change in mpg comparing 8 cylinders to 4.
+
+```{r}
+data("mtcars")
+y <- mtcars$mpg
+x1 <- mtcars$wt
+x2 <- factor(x = mtcars$cyl, labels = c('cyl4', 'cyl6', 'cyl8'))
+fit1 <- lm(y ~ x1 + x2)
+summary(fit1)
+#when 8cyl and others constant --> mpg = -6.0709
+#when 4cyl and others constant --> not in the table so this is set to 0
+summary(fit1)$coef[4, 1]
+```
+
+  - **-6.071**
+  - -3.206
+  - -4.256
+  - 33.991
+  
+2. Consider the `mtcars` data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight as a possible confounding variable. Compare the effect of 8 versus 4 cylinders on mpg for the adjusted and unadjusted by weight models. Here, adjusted means including the weight variable as a term in the regression model and unadjusted means the model without weight included. What can be said about the effect comparing 8 and 4 cylinders after looking at models with and without weight included?.
+
+```{r}
+fit2_wt <- lm(y ~ x1 + x2)
+summary(fit2_wt)$coefficients[4, 1] #difference btw cyl 4 and 8 with wt
+fit2_nwt <- lm(y ~ x2)
+summary(fit2_nwt)$coefficients[3, 1]
+```
+
+  - Holding weight constant, cylinder appears to have more of an impact on mpg than if weight is disregarded.
+  - **Holding weight constant, cylinder appears to have less of an impact on mpg than if weight is disregarded.**
+  - Within a given weight, 8 cylinder vehicles have an expected 12 mpg drop in fuel efficiency.
+  - Including or excluding weight does not appear to change anything regarding the estimated impact of number of cylinders on mpg.
+
+3. Consider the `mtcars` data set. Fit a model with mpg as the outcome that considers number of cylinders as a factor variable and weight as confounder. Now fit a second model with mpg as the outcome model that considers the interaction between number of cylinders (as a factor variable) and weight. Give the P-value for the likelihood ratio test comparing the two models and suggest a model using 0.05 as a type I error rate significance benchmark.
+
+```{r}
+y <- mtcars$mpg
+x1 <- mtcars$wt
+x2 <- factor(x = mtcars$cyl, labels = c('cyl4', 'cyl6', 'cyl8'))
+fit3 <- lm(y ~ x1 + x2)
+fit3_int <- lm(y ~ x1 * x2)
+anova(fit3, fit3_int)[6]
+```
+
+  - **The P-value is larger than 0.05. So, according to our criterion, we would fail to reject, which suggests that the interaction terms is necessary.**
+  - The P-value is small (less than 0.05). So, according to our criterion, we reject, which suggests that the interaction term is necessary
+  - The P-value is small (less than 0.05). Thus it is surely true that there is no interaction term in the true model.
+  - The P-value is small (less than 0.05). So, according to our criterion, we reject, which suggests that the interaction term is not necessary.
+  - The P-value is larger than 0.05. So, according to our criterion, we would fail to reject, which suggests that the interaction terms may not be necessary.
+  - The P-value is small (less than 0.05). Thus it is surely true that there is an interaction term in the true model.
+
+4. Consider the `mtcars` data set. Fit a model with mpg as the outcome that includes number of cylinders as a factor variable and weight inlcuded in the model as
+```{r}
+lm(mpg ~ I(wt * 0.5) + factor(cyl), data = mtcars)
+```
+
+How is the wt coefficient interpretted?
+
+  - The estimated expected change in MPG per half ton increase in weight.
+  - The estimated expected change in MPG per half ton increase in weight for the average number of cylinders.
+  - **The estimated expected change in MPG per one ton increase in weight for a specific number of cylinders (4, 6, 8).**
+  - The estimated expected change in MPG per half ton increase in weight for for a specific number of cylinders (4, 6, 8).
+  - The estimated expected change in MPG per one ton increase in weight.
+
+5. Consider the following data set
+
+```{r}
+x <- c(0.586, 0.166, -0.042, -0.614, 11.72)
+y <- c(0.549, -0.026, -0.127, -0.751, 1.344)
+```
+
+Give the hat diagonal for the most influential point
+
+```{r}
+fit5 <- lm(y ~ x)
+max(hatvalues(fit5))
+```
+
+  - 0.2287
+  - 0.2804
+  - **0.9946**
+  - 0.2025
+
+6. Consider the following data set
+
+```{r}
+x <- c(0.586, 0.166, -0.042, -0.614, 11.72)
+y <- c(0.549, -0.026, -0.127, -0.751, 1.344)
+```
+
+Give the slope dfbeta for the point with the highest hat value.
+
+```{r}
+fit6 <- lm(y ~ x)
+dfbetas(fit6)[which.max(hatvalues(fit6)), 2]
+```
+
+  - 0.673
+  - -0.378
+  - **-134**
+  - -.00134
+
+7. Consider a regression relationship between Y and X with and without adjustment for a third variable Z. Which of the following is true about comparing the regression coefficient between Y and X with and without adjustment for Z.
+
+  - Adjusting for another variable can only attenuate the coefficient toward zero. It can't materially change sign.
+  - **It is possible for the coefficient to reverse sign after adjustment. For example, it can be strongly significant and positive before adjustment and strongly significant and negative after adjustment.**
+  - For the the coefficient to change sign, there must be a significant interaction term.
+  - The coefficient can't change sign after adjustment, except for slight numerical pathological cases.

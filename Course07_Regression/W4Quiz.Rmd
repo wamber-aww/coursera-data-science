@@ -1,0 +1,109 @@
+---
+title: "Week 4 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Consider the space shuttle data `?shuttle` in the `MASS` library.  Consider modeling the use of the autolander as the outcome (variable name 𝚞𝚜𝚎). Fit a logistic regression model with autolander (variable auto) use (labeled as "auto" 1) versus not (0) as predicted by wind sign (variable wind). Give the estimated odds ratio for autolander use comparing head winds, labeled as "head" in the variable headwind (numerator) to tail winds (denominator).
+
+```{r}
+suppressMessages(library(MASS))
+data(shuttle)
+fit1 <- glm(shuttle$use ~ shuttle$wind, family = 'binomial')
+#slope is modeled in log scale (log odds ratio)
+exp(fit1$coef[2])
+```
+
+
+  - 1.327
+  - -0.031
+  - **0.969**
+  - 0.031
+
+2. Consider the previous problem. Give the estimated odds ratio for autolander use comparing head winds (numerator) to tail winds (denominator) adjusting for wind strength from the variable magn.
+
+```{r}
+fit2 <- glm(shuttle$use ~ shuttle$wind + shuttle$magn, family = 'binomial')
+exp(fit2$coef[2])
+```
+
+  - **0.969**
+  - 1.00
+  - 1.485
+  - 0.684
+
+3. If you fit a logistic regression model to a binary variable, for example use of the autolander, then fit a logistic regression model for one minus the outcome (not using the autolander) what happens to the coefficients?
+
+```{r}
+fit3 <- glm(shuttle$use ~ shuttle$wind, family = 'binomial')
+fit3$coef
+head(shuttle$use)
+useRev <- relevel(shuttle$use, ref = 'noauto')
+head(useRev)
+fit3_2 <- glm(useRev ~ shuttle$wind, family = 'binomial')
+fit3_2$coef
+```
+```
+the coefficient are on the log scale. So changing the significants changes the numerator and denominator for the exponent.
+```
+
+  - The coefficients change in a non-linear fashion.
+  - The coefficients get inverted (one over their previous value).
+  - **The coefficients reverse their signs.**
+  - The intercept changes sign, but the other coefficients don't.
+
+4. Consider the insect spray data `InsectSprays` Fit a Poisson model using spray as a factor level. Report the estimated relative rate comapring spray A (numerator) to spray B (denominator).
+
+```{r}
+data("InsectSprays")
+
+fit4 <- lm(I(log(InsectSprays$count + 1)) ~ as.factor(InsectSprays$spray))
+exp(fit4$coef[1]) / exp(fit4$coef[1] + fit4$coef[2])
+
+fit4_2 <- glm(InsectSprays$count ~ as.factor(InsectSprays$spray), family = 'poisson')
+exp(fit4_2$coef[1]) / exp((fit4_2$coef[1] + fit4_2$coef[2]))
+exp(-fit4_2$coef[2])
+```
+
+  - 0.321
+  - -0.056
+  - 0.136
+  - **0.9457**
+
+5. Consider a Poisson glm with an offset, t. So, for example, a model of the form 𝚐𝚕𝚖(𝚌𝚘𝚞𝚗𝚝 ~ 𝚡 + 𝚘𝚏𝚏𝚜𝚎𝚝(𝚝), 𝚏𝚊𝚖𝚒𝚕𝚢 = 𝚙𝚘𝚒𝚜𝚜𝚘𝚗) where 𝚡 is a factor variable comparing a treatment (1) to a control (0) and 𝚝 is the natural log of a monitoring time. What is impact of the coefficient for 𝚡 if we fit the model 𝚐𝚕𝚖(𝚌𝚘𝚞𝚗𝚝 ~ 𝚡 + 𝚘𝚏𝚏𝚜𝚎𝚝(𝚝𝟸), 𝚏𝚊𝚖𝚒𝚕𝚢 = 𝚙𝚘𝚒𝚜𝚜𝚘𝚗) where 𝟸 <- 𝚕𝚘𝚐(𝟷𝟶) + 𝚝? In other words, what happens to the coefficients if we change the units of the offset variable. (Note, adding log(10) on the log scale is multiplying by 10 on the original scale.)
+
+```
+Note, the coefficients are unchanged, except the intercept, which is shifted by
+log(10). Recall that, except the intercept, all of the coefficients are interpretted as
+log relative rates when holding the other variables or offset constant. Thus, a unit
+change in the offset would cancel out. This is not true of the intercept, which is
+interperted as the log rate (not relative rate) with all of the covariates set to 0.
+```
+
+  - The coefficient is subtracted by log(10).
+  - The coefficient estimate is divided by 10.
+  - The coefficient estimate is multiplied by 10.
+  - **The coefficient estimate is unchanged**
+
+6. Consider the data
+
+```{r}
+x <- -5:5
+y <- c(5.12, 3.93, 2.67, 1.87, 0.52, 0.08, 0.93, 2.05, 2.54, 3.87, 4.97)
+```
+
+Using a knot point at 0, fit a linear model that looks like a hockey stick with two lines meeting at x=0. Include an intercept term, x and the knot point term. What is the estimated slope of the line after 0?
+
+```{r}
+z <- (x > 0) * x
+fit6 <- lm(y ~ x + z)
+sum(fit6$coef[2:3])
+```
+
+  - **1.013**
+  - -0.183
+  - -1.024
+  - 2.037
