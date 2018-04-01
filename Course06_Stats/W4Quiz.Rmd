@@ -1,0 +1,154 @@
+---
+title: "Week 4 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. A pharmaceutical company is interested in testing a potential blood pressure lowering medication. Their first examination considers only subjects that received the medication at baseline then two weeks later. The data are as follows (SBP in mmHg). Consider testing the hypothesis that there was a mean reduction in blood pressure? Give the P-value for the associated two sided T test. (Hint, consider that the observations are paired.)
+
+```{r}
+data <- data.frame('Subject' = c(1:5),
+                   'Baseline' = c(140, 138, 150, 148, 135),
+                   'Week2' = c(132, 135, 151, 146, 130))
+data
+```
+
+  
+```{r}
+t.test(data$Baseline, data$Week2, paired = T)
+```
+    
+  - 0.05
+  - 0.043
+  - **0.087**
+  - 0.10
+
+2. A sample of 9 men yielded a sample average brain volume of 1,100cc and a standard deviation of 30cc. What is the complete set of values of `μ0` that a test of `H0 : μ = μ0` would fail to reject the null hypothesis in a two sided 5% Students t-test?
+
+```{r}
+n <- 9
+mu <- 1100
+sd <- 30
+ci <- 0.95
+qntl <- ci + (1-ci)/2
+
+mu + c(-1, 1) * qt(qntl, df = n - 1) * sd/sqrt(n)
+```
+
+  - 1080 to 1120
+  - 1081 to 1119
+  - **1077 to 1123**
+  - 1031 to 1169
+
+3. Researchers conducted a blind taste test of Coke versus Pepsi. Each of four people was asked which of two blinded drinks given in random order that they preferred. The data was such that 3 of the 4 people chose Coke. Assuming that this sample is representative, report a P-value for a test of the hypothesis that Coke is preferred to Pepsi using a one sided exact test.
+
+```{r}
+choose(4, 3)*0.5^4 + choose(4, 4)*0.5^4
+
+n <- 4
+y <- 3
+p <- 0.5
+pbinom(y-1, size = n, prob = p, lower.tail = F)
+```
+
+  - **0.31**
+  - 0.62
+  - 0.005
+  - 0.10
+
+4. Infection rates at a hospital above 1 infection per 100 person days at risk are believed to be too high and are used as a benchmark. A hospital that had previously been above the benchmark recently had 10 infections over the last 1,787 person days at risk. About what is the one sided P-value for the relevant test of whether the hospital is **below** the standard?
+
+```{r}
+unit <- 1787
+case <- 10
+benchmark <- 1/100
+ppois(case, benchmark * unit, lower.tail = T)
+poisson.test(case, T = unit, r = benchmark, alt = 'less')
+```
+
+  - 0.11
+  - 0.52
+  - **0.03**
+  - 0.22
+
+5. Suppose that 18 obese subjects were randomized, 9 each, to a new diet pill and a placebo. Subjects’ body mass indices (BMIs) were measured at a baseline and again after having received the treatment or placebo for four weeks. The average difference from follow-up to the baseline (followup - baseline) was −3 kg/m2 for the treated group and 1 kg/m2 for the placebo group. The corresponding standard deviations of the differences was 1.5 kg/m2 for the treatment group and 1.8 kg/m2 for the placebo group. Does the change in BMI appear to differ between the treated and placebo groups? Assuming normality of the underlying data and a common population variance, give a pvalue for a two sided t test.
+
+```{r}
+#placebo
+n_o <- 9
+mu_o <- 1
+var_o <- 1.8**2
+#treatment
+n_n <- 9
+mu_n <- -3
+var_n <- 1.5**2
+
+ci <- 0.95
+qntl <- ci + (1-ci)/2
+sp <- sqrt(((n_o-1) * var_o + (n_n-1) * var_n) / (n_o + n_n - 2)) 
+
+pt((mu_n - mu_o) / (sp * sqrt(1/n_n + 1/n_o)), df = n_o + n_n - 2)
+```
+
+  - Less than 0.10 but larger than 0.05
+  - Less than 0.05, but larger than 0.01
+  - Larger than 0.10
+  - **Less than 0.01**
+
+6. Brain volumes for 9 men yielded a 90% confidence interval of 1,077 cc to 1,123 cc. Would you reject in a two sided 5% hypothesis test of `H0 : μ = 1,078`?
+
+```
+No, you would fail to reject. The 95% interval would be wider than the 90%
+interval. Since 1,078 is in the narrower 90% interval, it would also be in the wider
+95% interval. Thus, in either case it's in the interval and so you would fail to reject.
+```
+
+  - Yes you would reject.
+  - Where does Brian come up with these questions?
+  - **No you wouldn't reject.**
+  - It's impossible to tell.
+
+7. Researchers would like to conduct a study of 100 healthy adults to detect a four year mean brain volume loss of .01 mm3. Assume that the standard deviation of four year volume loss in this population is .04 mm3. About what would be the power of the study for a 5% one sided test versus a null hypothesis of no volume loss?
+
+```{r}
+n <- 100
+p <- 0.05
+qntl <- ci
+mu <- 0.01
+sd <- 0.04
+
+power.t.test(n = 100, delta = mu, sd = sd, sig.level = p, type = 'one.sample', alternative = 'one.sided')$power
+```
+
+  - 0.50
+  - 0.70
+  - **0.80**
+  - 0.60
+
+8. Researchers would like to conduct a study of n healthy adults to detect a four year mean brain volume loss of .01 mm3. Assume that the standard deviation of four year volume loss in this population is .04 mm3. About what would be the value of n needed for 90% power of type one error rate of 5% one sided test versus a null hypothesis of no volume loss?
+
+```{r}
+power <- 0.9
+p <- 0.05
+mu <- 0.01
+sd <- 0.04
+
+ceiling((sd/mu * (qnorm(1-p) - qnorm(1-power)))^2)
+```
+
+  - **140**
+  - 180
+  - 160
+  - 120
+
+9. As you increase the type one error rate, α, what happens to power?
+
+    `As you require less evidence to reject, i.e. your α rate goes up, you will have larger power.`
+
+  - **You will get larger power.**
+  - It's impossible to tell given the information in the problem.
+  - No, for real, where does Brian come up with these problems?
+  - You will get smaller power.
