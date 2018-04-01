@@ -27,4 +27,4 @@ This week covers some of the workhorse statistical methods for exploratory analy
 This week, we'll look at two case studies in exploratory data analysis. The first involves the use of cluster analysis techniques, and the second is a more involved analysis of some air pollution data. How one goes about doing EDA is often personal, but I'm providing these videos to give you a sense of how you might proceed with a specific type of dataset.
 
 The overall goal of this assignment is to explore the National Emissions Inventory database and see what it say about fine particulate matter pollution in the United states over the 10-year period 1999–2008. You may use any R package you want to support your analysis.
-- [Week 4 assignment](https://wamber-aww.github.io/coursera-data-science/Course04_ExploreDataAnalysis/W4Hw.html)
+- [Week 4 assignment writeup](https://wamber-aww.github.io/coursera-data-science/Course04_ExploreDataAnalysis/W4Hw.html)
