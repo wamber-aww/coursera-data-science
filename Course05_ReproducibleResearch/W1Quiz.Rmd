@@ -37,7 +37,7 @@ study was simple enough to be repeated by an independent investigator.
 5. Which of the following is a reason why publishing **reproducible research** is increasingly
 important?  
   - Most studies today are small-scale and easily replicated.
-  - Computing power is limited today, making it  difficultd apply sophisticated statistical methods.
+  - Computing power is limited today, making it difficult to apply sophisticated statistical methods.
   - The statistical methods for most studies can be accurately described using
 plain language.
   - **New technologies are increasing the rate of data collection, creating datasets that are more complex and extremely high dimensional.**
