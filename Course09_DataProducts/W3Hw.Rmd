@@ -1,0 +1,20 @@
+---
+title: "Interactive Presentation"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Petal length vs width in each species
+### Date: March 6th 2018  
+```{r, echo = F}
+suppressPackageStartupMessages(library(plotly))
+plot_ly(iris, x = iris$Petal.Length, y = iris$Petal.Width, 
+        type = 'scatter', mode = 'markers', color = iris$Species) %>% 
+  layout(xaxis = list(title = 'Petal Length'), yaxis = list(title = 'Petal Width'))
+```
+
+  - The Setosa species has the least petal length and width  
+

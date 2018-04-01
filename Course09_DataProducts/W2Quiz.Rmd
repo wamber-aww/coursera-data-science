@@ -1,0 +1,51 @@
+---
+title: "Week 2 Quiz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. What is rmarkdown? (Check all that apply.)
+
+  - **A simplified format that, when interpreted, incorporates your R analysis into your document.**
+  - A form of LaTeX typesetting.
+  - **A format that can be interpreted into markdown (which is a simplified markup language).**
+  - A simplified XML format that can be interpreted into R.
+
+2. In rmarkdown presentations, in the options for code chunks, what command prevents the code from being repeated before results in the final interpreted document?
+
+  - `eval = FALSE`
+  - **`echo = FALSE`**
+  - `comment = FALSE`
+  - `cache = FALSE`
+
+3. In rmarkdown presentations, in the options for code chunks, what prevents the code from being interpreted?
+
+  - **`eval = FALSE`**
+  - `run = FALSE`
+  - `cache = FALSE`
+  - `eval = NULL`
+
+4. What is leaflet? (Check all that apply.)
+
+  - An R package for creating 3D rendered isomaps
+  - A tool for reproducible documents
+  - **A javascript library for creating interactive maps**
+  - **An R package interface to the javascript library of the same name**
+
+5. The R command `df %>% leaflet() %>% addTiles()` is equivalent to what? (Check all that apply)?
+
+  - `df(leaflet(addTiles()))`
+  - `addTiles(leaflet(df()))`
+  - **`addTiles(leaflet(df))`**
+  - `leaflet(addTiles(df))`
+  - **`leaflet(df) %>% addTiles()`**
+
+6. If I want to add popup icons to my leaflet map in R, I should use.
+
+  - `addTiles`
+  - **`addMarkers`**
+  - `leaflet`
+  - `dplyr`
